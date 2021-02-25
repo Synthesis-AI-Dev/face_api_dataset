@@ -18,6 +18,7 @@ class Modality(Enum):
         v
         y
     """
+
     RENDER_ID = auto()
     """
     Render ID (image number). 
@@ -453,7 +454,9 @@ class FaceApiDataset(Sequence):
         if modality == Modality.NORMALS:
             import tiffile
 
-            normals_file = self.root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+            normals_file = (
+                self.root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+            )
             img = tiffile.imread(str(normals_file))
             if img is None:
                 raise ValueError(f"Error reading {normals_file}")

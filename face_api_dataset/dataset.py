@@ -44,7 +44,7 @@ class Modality(Enum):
     """
     ALPHA = auto()
     """
-    Alpha Image. 0 - means complete transparency, 1 - solid object.
+    Alpha Image. 0 - means complete transparency, 255 - solid object.
     
     **Type**: `ndarray[uint8]`. **Channels**: 1.
     """
@@ -133,7 +133,7 @@ class Modality(Enum):
     """
     Gaze angles in image space.
     
-    **Type**: `ndarray[float64]``. **Dimensions**: 2.
+    **Type**: `ndarray[float64]`. **Dimensions**: 2.
     """
 
 

@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to Face API Dataset’s documentation! &mdash; Face API Dataset 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> Face API Dataset
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to Face API Dataset’s documentation!</a><ul>
+<li><a class="reference internal" href="#module-face_api_dataset.dataset">face_api_dataset.dataset module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Face API Dataset</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to Face API Dataset’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-face-api-dataset-s-documentation">
+<h1>Welcome to Face API Dataset’s documentation!<a class="headerlink" href="#welcome-to-face-api-dataset-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-face_api_dataset.dataset">
+<span id="face-api-dataset-dataset-module"></span><h2>face_api_dataset.dataset module<a class="headerlink" href="#module-face_api_dataset.dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="face_api_dataset.dataset.Modality">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">face_api_dataset.dataset.</span></code><code class="sig-name descname"><span class="pre">Modality</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.Modality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Different modalities of Synthesis AI dataset.
+All image modalities are in <cite>[y][x][channel]</cite> format, with axis going as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌-----&gt;x
+|
+|
+v
+y
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.RENDER_ID">
+<code class="sig-name descname"><span class="pre">RENDER_ID</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.RENDER_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render ID (image number).</p>
+<p><strong>Type</strong>: <cite>int</cite>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.RGB">
+<code class="sig-name descname"><span class="pre">RGB</span></code><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.RGB" title="Permalink to this definition">¶</a></dt>
+<dd><p>RGB image modality.</p>
+<p><strong>Type</strong>: <cite>ndarray[uint8]</cite>. <strong>Channels</strong>: <cite>3</cite>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.NORMALS">
+<code class="sig-name descname"><span class="pre">NORMALS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.NORMALS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normals image. All values are in [-1,1] range.</p>
+<p><strong>Type</strong>: <cite>ndarray[float16]</cite>. <strong>Channels</strong>: 3.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.DEPTH">
+<code class="sig-name descname"><span class="pre">DEPTH</span></code><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.DEPTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth Image. All values are positive floats. Background has depth=0.</p>
+<p><strong>Type</strong>: <cite>ndarray[float16]</cite>. <strong>Channels</strong>: 1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.ALPHA">
+<code class="sig-name descname"><span class="pre">ALPHA</span></code><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.ALPHA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alpha Image. 0 - means complete transparency, 1 - solid object.</p>
+<p><strong>Type</strong>: <cite>ndarray[uint8]</cite>. <strong>Channels</strong>: 1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.SEGMENTS">
+<code class="sig-name descname"><span class="pre">SEGMENTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.SEGMENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segmentation map. Semantic of different values is defined by segments mapping.
+<strong>Type</strong>: <cite>ndarray[uint16]</cite>. <strong>Channels</strong>: 1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.LANDMARKS">
+<code class="sig-name descname"><span class="pre">LANDMARKS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">7</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.LANDMARKS" title="Permalink to this definition">¶</a></dt>
+<dd><p>iBUG-68 landmarks. Each landmark is given by two coordinates (x,y) in pixels.</p>
+<p><strong>Type</strong>: <cite>ndarray[float64]</cite>. <strong>Dimensions</strong>: (68, 2).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.LANDMARKS_3D">
+<code class="sig-name descname"><span class="pre">LANDMARKS_3D</span></code><em class="property"> <span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.LANDMARKS_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>iBUG-68 landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.</p>
+<p><strong>Type</strong>: <cite>ndarray[float64]</cite>. <strong>Dimensions</strong>: (68, 3).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.PUPILS">
+<code class="sig-name descname"><span class="pre">PUPILS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">9</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.PUPILS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of pupils. Each pupil is given by two coordinates (x,y) in pixels.</p>
+<p><strong>Type</strong>: <cite>ndarray[float64]</cite>. <strong>Dimensions</strong>: (2, 2).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.PUPILS_3D">
+<code class="sig-name descname"><span class="pre">PUPILS_3D</span></code><em class="property"> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.PUPILS_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of pupils in 3D. Each pupil is given by three coordinates (x,y,z) in camera space.</p>
+<p><strong>Type</strong>: <cite>ndarray[float64]</cite>. <strong>Dimensions</strong>: (2, 3).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.IDENTITY">
+<code class="sig-name descname"><span class="pre">IDENTITY</span></code><em class="property"> <span class="pre">=</span> <span class="pre">11</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.IDENTITY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique ID of the person on the image.</p>
+<p><strong>Type</strong>: <cite>int</cite>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.IDENTITY_METADATA">
+<code class="sig-name descname"><span class="pre">IDENTITY_METADATA</span></code><em class="property"> <span class="pre">=</span> <span class="pre">12</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.IDENTITY_METADATA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional metadata about the person on the image.</p>
+<p><strong>Format</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;female&#39;</span><span class="o">|</span><span class="s1">&#39;male&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+ <span class="s1">&#39;weight_kg&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+ <span class="s1">&#39;height_cm&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+ <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+ <span class="s1">&#39;ethnicity&#39;</span><span class="p">:</span> <span class="s1">&#39;arab&#39;</span><span class="o">|</span><span class="s1">&#39;asian&#39;</span><span class="o">|</span><span class="s1">&#39;black&#39;</span><span class="o">|</span><span class="s1">&#39;hisp&#39;</span><span class="o">|</span><span class="s1">&#39;white&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.HAIR">
+<code class="sig-name descname"><span class="pre">HAIR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">13</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.HAIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hair metadata. If no hair are present <cite>None</cite> is returned.</p>
+<p><strong>Format</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;relative_length&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;relative_density&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+ <span class="s1">&#39;color_seed&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.FACIAL_HAIR">
+<code class="sig-name descname"><span class="pre">FACIAL_HAIR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">14</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.FACIAL_HAIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Facial hair metadata. If no facial hair are present <cite>None</cite> is returned.</p>
+<p><strong>Format</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;relative_length&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;relative_density&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+ <span class="s1">&#39;color_seed&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span>
+ <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.EXPRESSION">
+<code class="sig-name descname"><span class="pre">EXPRESSION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">15</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.EXPRESSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression and its intensity.</p>
+<p><strong>Format</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;intensity&#39;</span><span class="p">:</span> <span class="n">float64</span><span class="p">,</span> 
+<span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.Modality.GAZE">
+<code class="sig-name descname"><span class="pre">GAZE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">16</span></em><a class="headerlink" href="#face_api_dataset.dataset.Modality.GAZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gaze angles in image space.</p>
+<p><strong>Type</strong>: <cite>ndarray[float64]`</cite>. <strong>Dimensions</strong>: 2.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="face_api_dataset.dataset.FaceApiDataset">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">face_api_dataset.dataset.</span></code><code class="sig-name descname"><span class="pre">FaceApiDataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>Synthesis AI face dataset.</p>
+<p>This class provides access to all the modalities available in Synthesis AI generated datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modalities</strong> (<em>List</em><em>[</em><a class="reference internal" href="#face_api_dataset.dataset.Modality" title="face_api_dataset.dataset.Modality"><em>Modality</em></a><em>]</em>) – list of available modalities.</p></li>
+<li><p><strong>segments</strong> (<em>Dict</em><em>[</em><em>str</em><em>,</em><em>int</em><em>]</em>) – mapping from segment names to integral ids, useful for segmentation.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="face_api_dataset.dataset.FaceApiDataset.SEGMENTS">
+<code class="sig-name descname"><span class="pre">SEGMENTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'background':</span> <span class="pre">0,</span> <span class="pre">'beard':</span> <span class="pre">1,</span> <span class="pre">'body':</span> <span class="pre">2,</span> <span class="pre">'brow':</span> <span class="pre">3,</span> <span class="pre">'cheek_left':</span> <span class="pre">4,</span> <span class="pre">'cheek_right':</span> <span class="pre">5,</span> <span class="pre">'chin':</span> <span class="pre">6,</span> <span class="pre">'clothing':</span> <span class="pre">7,</span> <span class="pre">'default':</span> <span class="pre">0,</span> <span class="pre">'ear_left':</span> <span class="pre">8,</span> <span class="pre">'ear_right':</span> <span class="pre">9,</span> <span class="pre">'eye_left':</span> <span class="pre">10,</span> <span class="pre">'eye_right':</span> <span class="pre">11,</span> <span class="pre">'eyelashes':</span> <span class="pre">12,</span> <span class="pre">'eyelid':</span> <span class="pre">13,</span> <span class="pre">'eyes':</span> <span class="pre">14,</span> <span class="pre">'forehead':</span> <span class="pre">15,</span> <span class="pre">'glasses':</span> <span class="pre">16,</span> <span class="pre">'hair':</span> <span class="pre">17,</span> <span class="pre">'head':</span> <span class="pre">18,</span> <span class="pre">'headphones':</span> <span class="pre">19,</span> <span class="pre">'headwear':</span> <span class="pre">20,</span> <span class="pre">'jaw':</span> <span class="pre">21,</span> <span class="pre">'jowl':</span> <span class="pre">22,</span> <span class="pre">'lip_lower':</span> <span class="pre">23,</span> <span class="pre">'lip_upper':</span> <span class="pre">24,</span> <span class="pre">'mask':</span> <span class="pre">25,</span> <span class="pre">'mouth':</span> <span class="pre">26,</span> <span class="pre">'mouthbag':</span> <span class="pre">27,</span> <span class="pre">'mustache':</span> <span class="pre">28,</span> <span class="pre">'neck':</span> <span class="pre">29,</span> <span class="pre">'nose':</span> <span class="pre">30,</span> <span class="pre">'nose_outer':</span> <span class="pre">31,</span> <span class="pre">'nostrils':</span> <span class="pre">32,</span> <span class="pre">'shoulders':</span> <span class="pre">33,</span> <span class="pre">'smile_line':</span> <span class="pre">34,</span> <span class="pre">'teeth':</span> <span class="pre">35,</span> <span class="pre">'temples':</span> <span class="pre">36,</span> <span class="pre">'tongue':</span> <span class="pre">37,</span> <span class="pre">'undereye':</span> <span class="pre">38}</span></em><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.SEGMENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default segmentation mapping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="face_api_dataset.dataset.FaceApiDataset.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes FaceApiDataset from the data in <code class="xref py py-attr docutils literal notranslate"><span class="pre">root</span></code> directory, loading listed <code class="xref py py-attr docutils literal notranslate"><span class="pre">modalities</span></code>.
+All dataset files should be located in the root directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>root
+├── metadata.jsonl
+    0.exr
+    0.rgb.png
+    0.info.json
+    0.segments.png
+    0.alpha.tif
+    0.depth.tif
+    0.normals.tif
+    1.exr
+    1.rgb.png
+    1.info.json
+    1.segments.png
+    1.alpha.tif
+    1.depth.tif
+    1.normals.tif
+</pre></div>
+</div>
+<p>No extra files are allowed, but all files which are not needed to load modalities listed may be abcent.</p>
+<p>For instance, if only <cite>RGB</cite> and <cite>SEGMENTS</cite> modalities are needed the following files are enough:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>root
+├── 0.rgb.png
+    0.info.json
+    0.segments.png
+    1.rgb.png
+    1.info.json
+    1.segments.png
+</pre></div>
+</div>
+<p>If any of the required files are absent for at least one image, or any redundant files are located in the directory, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> is raised.</p>
+<p>To work with segment modalities, <code class="xref py py-attr docutils literal notranslate"><span class="pre">segments</span></code> parameter is used.
+This shows how to map segments name to integer representation.
+For example, to work with <cite>background</cite> (0)/<cite>face</cite> (1)/<cite>hair</cite> (2)/<cite>body</cite> (3) segmentation it may look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">segments</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;background&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;beard&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s1">&#39;brow&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;cheek_left&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;cheek_right&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;chin&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;clothing&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s1">&#39;ear_left&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;ear_right&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;eye_left&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;eye_right&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;eyelashes&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;eyelid&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;eyes&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;forehead&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;glasses&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;hair&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+             <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;headphones&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;headwear&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;jaw&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;jowl&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;lip_lower&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;lip_upper&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;mouth&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;mouthbag&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;mustache&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;neck&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s1">&#39;nose&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;nose_outer&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;nostrils&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;shoulders&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s1">&#39;smile_line&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;teeth&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;temples&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;tongue&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;undereye&#39;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">}</span>
+</pre></div>
+</div>
+<p>In addition <code class="xref py py-attr docutils literal notranslate"><span class="pre">transform</span></code> function may be provided. If it is not <cite>None</cite> it will be applied to modality dict after each <code class="xref py py-meth docutils literal notranslate"><span class="pre">__get__()</span></code> call.</p>
+<p>For example, to flip rgb image and its segmentation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">modalities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Modality</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Modality</span><span class="p">]:</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">modalities</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">ret</span><span class="p">[</span><span class="n">Modality</span><span class="o">.</span><span class="n">RGB</span><span class="p">]</span> <span class="o">=</span> <span class="n">flip</span><span class="p">(</span><span class="n">modalities</span><span class="p">[</span><span class="n">Modality</span><span class="o">.</span><span class="n">RGB</span><span class="p">])</span>
+    <span class="n">ret</span><span class="p">[</span><span class="n">Modality</span><span class="o">.</span><span class="n">SEGMENTS</span><span class="p">]</span> <span class="o">=</span> <span class="n">flip</span><span class="p">(</span><span class="n">modalities</span><span class="p">[</span><span class="n">Modality</span><span class="o">.</span><span class="n">SEGMENTS</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ret</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>Union</em><em>[</em><em>str</em><em>,</em><em>bytes</em><em>,</em><em>os.PathLike</em><em>]</em>) – Dataset root. All image files (ex. <cite>0.rgb.png</cite>) should be located directly in this directory.</p></li>
+<li><p><strong>modalities</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#face_api_dataset.dataset.Modality" title="face_api_dataset.dataset.Modality"><em>Modality</em></a><em>]</em><em>]</em>) – List of modalities to load. If None all the modalities are loaded.</p></li>
+<li><p><strong>segments</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>,</em><em>int</em><em>]</em><em>]</em>) – Mapping from object names to segmentation id. If <cite>None</cite> <a class="reference internal" href="#face_api_dataset.dataset.FaceApiDataset.SEGMENTS" title="face_api_dataset.dataset.FaceApiDataset.SEGMENTS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SEGMENTS</span></code></a> mapping is used.</p></li>
+<li><p><strong>transform</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.dataset.Modality" title="face_api_dataset.dataset.Modality"><em>Modality</em></a><em>,</em><em>Any</em><em>]</em><em>]</em><em>,</em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.dataset.Modality" title="face_api_dataset.dataset.Modality"><em>Modality</em></a><em>,</em><em>Any</em><em>]</em><em>]</em><em>]</em>) – Additional transforms to apply to modalities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Synthesis AI.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

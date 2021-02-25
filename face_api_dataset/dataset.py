@@ -12,7 +12,7 @@ class Modality(Enum):
     """
     Different modalities of Synthesis AI dataset.
     All image modalities are in `[y][x][channel]` format, with axis going as follows::
-        ┌----->x
+        ┌-----> x
         |
         |
         v

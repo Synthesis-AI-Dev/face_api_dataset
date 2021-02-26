@@ -318,14 +318,6 @@ y
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
 <p>Synthesis AI face dataset.</p>
 <p>This class provides access to all the modalities available in Synthesis AI generated datasets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>modalities</strong> (<em>List</em><em>[</em><a class="reference internal" href="#face_api_dataset.dataset.Modality" title="face_api_dataset.dataset.Modality"><em>Modality</em></a><em>]</em>) – list of available modalities.</p></li>
-<li><p><strong>segments</strong> (<em>Dict</em><em>[</em><em>str</em><em>,</em><em>int</em><em>]</em>) – mapping from segment names to integral ids, useful for segmentation.</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt id="face_api_dataset.dataset.FaceApiDataset.SEGMENTS">
 <code class="sig-name descname"><span class="pre">SEGMENTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'background':</span> <span class="pre">0,</span> <span class="pre">'beard':</span> <span class="pre">1,</span> <span class="pre">'body':</span> <span class="pre">2,</span> <span class="pre">'brow':</span> <span class="pre">3,</span> <span class="pre">'cheek_left':</span> <span class="pre">4,</span> <span class="pre">'cheek_right':</span> <span class="pre">5,</span> <span class="pre">'chin':</span> <span class="pre">6,</span> <span class="pre">'clothing':</span> <span class="pre">7,</span> <span class="pre">'default':</span> <span class="pre">0,</span> <span class="pre">'ear_left':</span> <span class="pre">8,</span> <span class="pre">'ear_right':</span> <span class="pre">9,</span> <span class="pre">'eye_left':</span> <span class="pre">10,</span> <span class="pre">'eye_right':</span> <span class="pre">11,</span> <span class="pre">'eyelashes':</span> <span class="pre">12,</span> <span class="pre">'eyelid':</span> <span class="pre">13,</span> <span class="pre">'eyes':</span> <span class="pre">14,</span> <span class="pre">'forehead':</span> <span class="pre">15,</span> <span class="pre">'glasses':</span> <span class="pre">16,</span> <span class="pre">'hair':</span> <span class="pre">17,</span> <span class="pre">'head':</span> <span class="pre">18,</span> <span class="pre">'headphones':</span> <span class="pre">19,</span> <span class="pre">'headwear':</span> <span class="pre">20,</span> <span class="pre">'jaw':</span> <span class="pre">21,</span> <span class="pre">'jowl':</span> <span class="pre">22,</span> <span class="pre">'lip_lower':</span> <span class="pre">23,</span> <span class="pre">'lip_upper':</span> <span class="pre">24,</span> <span class="pre">'mask':</span> <span class="pre">25,</span> <span class="pre">'mouth':</span> <span class="pre">26,</span> <span class="pre">'mouthbag':</span> <span class="pre">27,</span> <span class="pre">'mustache':</span> <span class="pre">28,</span> <span class="pre">'neck':</span> <span class="pre">29,</span> <span class="pre">'nose':</span> <span class="pre">30,</span> <span class="pre">'nose_outer':</span> <span class="pre">31,</span> <span class="pre">'nostrils':</span> <span class="pre">32,</span> <span class="pre">'shoulders':</span> <span class="pre">33,</span> <span class="pre">'smile_line':</span> <span class="pre">34,</span> <span class="pre">'teeth':</span> <span class="pre">35,</span> <span class="pre">'temples':</span> <span class="pre">36,</span> <span class="pre">'tongue':</span> <span class="pre">37,</span> <span class="pre">'undereye':</span> <span class="pre">38}</span></em><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.SEGMENTS" title="Permalink to this definition">¶</a></dt>
@@ -335,7 +327,7 @@ y
 <dl class="py method">
 <dt id="face_api_dataset.dataset.FaceApiDataset.__init__">
 <code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes FaceApiDataset from the data in <code class="xref py py-attr docutils literal notranslate"><span class="pre">root</span></code> directory, loading listed <code class="xref py py-attr docutils literal notranslate"><span class="pre">modalities</span></code>.
+<dd><p>Initializes FaceApiDataset from the data in <code class="xref py py-attr docutils literal notranslate"><span class="pre">root</span></code> directory, loading listed <a class="reference internal" href="#face_api_dataset.dataset.FaceApiDataset.modalities" title="face_api_dataset.dataset.FaceApiDataset.modalities"><code class="xref py py-attr docutils literal notranslate"><span class="pre">modalities</span></code></a>.
 All dataset files should be located in the root directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>root
 ├── metadata.jsonl
@@ -367,7 +359,7 @@ All dataset files should be located in the root directory:</p>
 </pre></div>
 </div>
 <p>If any of the required files are absent for at least one image, or any redundant files are located in the directory, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> is raised.</p>
-<p>To work with segment modalities, <code class="xref py py-attr docutils literal notranslate"><span class="pre">segments</span></code> parameter is used.
+<p>To work with segment modalities, <a class="reference internal" href="#face_api_dataset.dataset.FaceApiDataset.segments" title="face_api_dataset.dataset.FaceApiDataset.segments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">segments</span></code></a> parameter is used.
 This shows how to map segments name to integer representation.
 For example, to work with <cite>background</cite> (0)/<cite>face</cite> (1)/<cite>hair</cite> (2)/<cite>body</cite> (3) segmentation it may look like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">segments</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -435,6 +427,18 @@ For example, to work with <cite>background</cite> (0)/<cite>face</cite> (1)/<cit
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="face_api_dataset.dataset.FaceApiDataset.segments">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">segments</span></code><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.segments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segment mapping for the dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="face_api_dataset.dataset.FaceApiDataset.modalities">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modalities</span></code><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.modalities" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of the loaded modalities.</p>
 </dd></dl>
 
 </dd></dl>

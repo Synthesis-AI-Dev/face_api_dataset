@@ -1,10 +1,12 @@
-import importlib
+import copy
 import json
 import os
 from collections import Sequence
 from enum import Enum, auto
+from importlib.util import find_spec
 from pathlib import Path
-from typing import Optional, List, Any, Union, Dict, Callable
+from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING
+
 import numpy as np
 
 
@@ -173,22 +175,25 @@ def _check_import(modality: Modality) -> None:
     if {_Extension.NORMALS, _Extension.DEPTH, _Extension.ALPHA}.intersection(
         _modality_files(modality)
     ):
-        if importlib.util.find_spec("tiffile") is None:
+        if find_spec("tiffile") is None:
             raise ImportError(f"Module tiffile is needed to load {modality}")
-        if importlib.util.find_spec("imagecodecs") is None:
+        if find_spec("imagecodecs") is None:
             raise ImportError(f"Module imagecodecs is needed to load {modality}")
     if {_Extension.SEGMENTS, _Extension.RGB}.intersection(_modality_files(modality)):
-        if importlib.util.find_spec("cv2") is None:
+        if find_spec("cv2") is None:
             raise ImportError(f"Module cv2 is needed to load {modality}")
+
+
+if TYPE_CHECKING:
+    Base = Sequence[dict]
+else:
+    Base = Sequence
 
 
 class FaceApiDataset(Sequence):
     """Synthesis AI face dataset.
 
     This class provides access to all the modalities available in Synthesis AI generated datasets.
-
-    :ivar List[Modality] modalities: list of available modalities.
-    :ivar Dict[str,int] segments: mapping from segment names to integral ids, useful for segmentation.
     """
 
     SEGMENTS = {
@@ -239,7 +244,7 @@ class FaceApiDataset(Sequence):
 
     def __init__(
         self,
-        root: Union[str, bytes, os.PathLike],
+        root: Union[str, os.PathLike],
         modalities: Optional[List[Modality]] = None,
         segments: Optional[Dict[str, int]] = None,
         transform: Optional[
@@ -267,7 +272,7 @@ class FaceApiDataset(Sequence):
                 1.depth.tif
                 1.normals.tif
 
-        No extra files are allowed, but all files which are not needed to load modalities listed may be abcent.
+        No extra files are allowed, but all files which are not needed to load modalities listed may be absent.
 
         For instance, if only `RGB` and `SEGMENTS` modalities are needed the following files are enough::
 
@@ -346,17 +351,17 @@ class FaceApiDataset(Sequence):
             segments = self.SEGMENTS
         if modalities is None:
             modalities = list(Modality)
-        self.segments = segments
-        self.modalities = sorted(modalities, key=lambda x: x.value)
-        for modality in self.modalities:
+        self._segments = segments
+        self._modalities = sorted(modalities, key=lambda x: x.value)
+        for modality in self._modalities:
             _check_import(modality)
         self._needs_info = False
-        for modality in self.modalities:
+        for modality in self._modalities:
             if _Extension.INFO in _modality_files(modality):
                 self._needs_info = True
-        self.root = Path(root)
+        self._root = Path(root)
         image_numbers = set()
-        for file_path in self.root.glob("*"):
+        for file_path in self._root.glob("*"):
             if file_path.name == "metadata.jsonl":
                 continue
             number = file_path.name.split(".")[0]
@@ -366,37 +371,68 @@ class FaceApiDataset(Sequence):
                 continue
             for modality in modalities:
                 for extension in _modality_files(modality):
-                    if not (self.root / f"{number}.{extension.value}").exists():
+                    if not (self._root / f"{number}.{extension.value}").exists():
                         raise ValueError(
                             f"Can't find file '{number}.{extension.value}' "
                             f"required for {modality.name} modality"
                         )
             image_numbers.add(number)
-        self.image_numbers = sorted(list(image_numbers), key=int)
-        self._image_sizes = {}
-        self.transform = transform
+        self._image_numbers = sorted(list(image_numbers), key=int)
+        self._image_sizes: Dict[str, int] = {}
+        self._transform = transform
+
+    @property
+    def segments(self) -> Dict[str, int]:
+        """
+        Segment mapping for the dataset.
+        """
+        return self._segments
+
+    @property
+    def modalities(self) -> List[Modality]:
+        """
+        List of the loaded modalities.
+        """
+        return self._modalities
 
     def __len__(self) -> int:
-        return len(self.image_numbers)
+        return len(self._image_numbers)
 
-    def __getitem__(self, i: int) -> dict:
-        if self.transform is None:
-            return self._get(i)
+    @overload
+    def __getitem__(self, index: int) -> dict:
+        pass
+
+    @overload
+    def __getitem__(self, index: slice) -> "FaceApiDataset":
+        pass
+
+    def __getitem__(self, i: Union[int, slice]) -> Union[dict, "FaceApiDataset"]:
+        if isinstance(i, slice):
+            ret = copy.copy(self)
+            ret._image_numbers = self._image_numbers[i]
+            ret._image_sizes = {}
+            for key, value in self._image_sizes.items():
+                if key in ret._image_numbers:
+                    ret._image_sizes[key] = value
+            return ret
         else:
-            return self.transform(self._get(i))
+            if self._transform is None:
+                return self._get(i)
+            else:
+                return self._transform(self._get(i))
 
     def _get(self, i: int) -> dict:
         if i > len(self):
             raise ValueError(f"Index {i} is out of bounds")
-        number = self.image_numbers[i]
+        number = self._image_numbers[i]
         info = None
         if self._needs_info:
-            info_file = self.root / f"{number}.{_Extension.INFO}"
+            info_file = self._root / f"{number}.{_Extension.INFO}"
             with info_file.open("r") as f:
                 info = json.load(f)
 
         ret = {}
-        for modality in self.modalities:
+        for modality in self._modalities:
             ret[modality] = self._open_modality(modality, number, info)
         return ret
 
@@ -409,7 +445,7 @@ class FaceApiDataset(Sequence):
         if modality == Modality.RGB:
             import cv2
 
-            rgb_file = self.root / f"{number}.{_modality_files(Modality.RGB)[0]}"
+            rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
             img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
             if img is None:
                 raise ValueError(f"Error reading {rgb_file}")
@@ -426,7 +462,7 @@ class FaceApiDataset(Sequence):
             import cv2
 
             segments_file = (
-                self.root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
+                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
             )
             img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
             if img is None:
@@ -456,7 +492,7 @@ class FaceApiDataset(Sequence):
             import tiffile
 
             normals_file = (
-                self.root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+                self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
             )
             img = tiffile.imread(str(normals_file))
             if img is None:
@@ -473,7 +509,7 @@ class FaceApiDataset(Sequence):
         if modality == Modality.ALPHA:
             import tiffile
 
-            alpha_file = self.root / f"{number}.{_modality_files(Modality.ALPHA)[0]}"
+            alpha_file = self._root / f"{number}.{_modality_files(Modality.ALPHA)[0]}"
             img = tiffile.imread(str(alpha_file))
             if number in self._image_sizes:
                 if self._image_sizes[number] != img.shape[::-1]:
@@ -489,7 +525,7 @@ class FaceApiDataset(Sequence):
         if modality == Modality.DEPTH:
             import tiffile
 
-            depth_file = self.root / f"{number}.{_modality_files(Modality.DEPTH)[0]}"
+            depth_file = self._root / f"{number}.{_modality_files(Modality.DEPTH)[0]}"
             img = tiffile.imread(str(depth_file))
             if number in self._image_sizes:
                 if self._image_sizes[number] != img.shape[::-1]:
@@ -504,7 +540,7 @@ class FaceApiDataset(Sequence):
 
         if modality == Modality.LANDMARKS:
             landmarks = []
-            if not number in self._image_sizes:
+            if number not in self._image_sizes:
                 raise ValueError(
                     "Landmarks can only be loaded with at least one image modality"
                 )
@@ -524,7 +560,7 @@ class FaceApiDataset(Sequence):
                 info["pupil_coordinates"]["pupil_left"]["screen_space_pos"],
                 info["pupil_coordinates"]["pupil_right"]["screen_space_pos"],
             ]
-            if not number in self._image_sizes:
+            if number not in self._image_sizes:
                 raise ValueError(
                     "Pupils can only be loaded with at least one image modality"
                 )
@@ -565,3 +601,4 @@ class FaceApiDataset(Sequence):
                 info["facial_attributes"]["gaze"]["vertical_angle"],
             ]
             return np.array(gaze, dtype=np.float64)
+        raise ValueError("Unknown modality")

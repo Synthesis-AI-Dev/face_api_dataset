@@ -14,6 +14,7 @@ class Modality(Enum):
     """
     Different modalities of Synthesis AI dataset.
     All image modalities are in `[y][x][channel]` format, with axis going as follows::
+
         ┌-----> x
         |
         |
@@ -190,7 +191,7 @@ else:
     Base = Sequence
 
 
-class FaceApiDataset(Sequence):
+class FaceApiDataset(Base):
     """Synthesis AI face dataset.
 
     This class provides access to all the modalities available in Synthesis AI generated datasets.
@@ -385,6 +386,8 @@ class FaceApiDataset(Sequence):
     def segments(self) -> Dict[str, int]:
         """
         Segment mapping for the dataset.
+
+        :type: Dict[str, int]
         """
         return self._segments
 
@@ -392,6 +395,8 @@ class FaceApiDataset(Sequence):
     def modalities(self) -> List[Modality]:
         """
         List of the loaded modalities.
+
+        :type: List[Modality]
         """
         return self._modalities
 

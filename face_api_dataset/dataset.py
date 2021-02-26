@@ -52,6 +52,7 @@ class Modality(Enum):
     SEGMENTS = auto()
     """
     Segmentation map. Semantic of different values is defined by segments mapping.
+    
     **Type**: `ndarray[uint16]`. **Channels**: 1.
     """
     LANDMARKS = auto()

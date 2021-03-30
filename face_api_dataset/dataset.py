@@ -5,7 +5,7 @@ from collections import Sequence
 from enum import Enum, auto
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING
+from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
 
@@ -140,6 +140,12 @@ class Modality(Enum):
     
     **Type**: `ndarray[float64]`. **Dimensions**: 2.
     """
+    FACE_BBOX = auto()
+    """
+    Face bounding box in format x0 y0 x1 y1
+    
+    **Type**: `Tuple[int, int, int, int]`.
+    """
 
 
 class _Extension(str, Enum):
@@ -169,12 +175,13 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.FACIAL_HAIR: [_Extension.INFO],
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
+        Modality.FACE_BBOX: [_Extension.INFO, _Extension.SEGMENTS],
     }[modality]
 
 
 def _check_import(modality: Modality) -> None:
     if {_Extension.NORMALS, _Extension.DEPTH, _Extension.ALPHA}.intersection(
-        _modality_files(modality)
+            _modality_files(modality)
     ):
         if find_spec("tiffile") is None:
             raise ImportError(f"Module tiffile is needed to load {modality}")
@@ -244,13 +251,13 @@ class FaceApiDataset(Base):
     """
 
     def __init__(
-        self,
-        root: Union[str, os.PathLike],
-        modalities: Optional[List[Modality]] = None,
-        segments: Optional[Dict[str, int]] = None,
-        transform: Optional[
-            Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
-        ] = None,
+            self,
+            root: Union[str, os.PathLike],
+            modalities: Optional[List[Modality]] = None,
+            segments: Optional[Dict[str, int]] = None,
+            transform: Optional[
+                Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
+            ] = None,
     ) -> None:
         """
         Initializes FaceApiDataset from the data in :attr:`root` directory, loading listed :attr:`modalities`.
@@ -442,7 +449,7 @@ class FaceApiDataset(Base):
         return ret
 
     def _open_modality(
-        self, modality: Modality, number: str, info: Optional[dict]
+            self, modality: Modality, number: str, info: Optional[dict]
     ) -> Any:
         if modality == Modality.RENDER_ID:
             return int(number)
@@ -464,40 +471,14 @@ class FaceApiDataset(Base):
             return img
 
         if modality == Modality.SEGMENTS:
-            import cv2
-
-            segments_file = (
-                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
-            )
-            img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
-            if img is None:
-                raise ValueError(f"Error reading {segments_file}")
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[::-1]:
-                    raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={number}"
-                    )
-            else:
-                self._image_sizes[number] = img.shape[::-1]
-
-            segment_mapping = info["segments_mapping"]
-            segment_mapping_int = np.full(
-                np.max(list(segment_mapping.values())) + 1,
-                self.segments["default"],
-                dtype=np.uint8,
-            )
-            for key, value in segment_mapping.items():
-                if key in self.segments:
-                    segment_mapping_int[value] = self.segments[key]
-
-            segment_img = segment_mapping_int[img]
+            segment_img, _ = self._read_segments(number, info)
             return segment_img
 
         if modality == Modality.NORMALS:
             import tiffile
 
             normals_file = (
-                self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+                    self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
             )
             img = tiffile.imread(str(normals_file))
             if img is None:
@@ -606,4 +587,55 @@ class FaceApiDataset(Base):
                 info["facial_attributes"]["gaze"]["vertical_angle"],
             ]
             return np.array(gaze, dtype=np.float64)
+
+        if modality == Modality.FACE_BBOX:
+            segment_img, segment_mapping_int = self._read_segments(number, info)
+
+            face_segments = ["brow", "cheek_left", "cheek_right", "chin",
+                             "eye_left", "eye_right", "eyelashes", "eyelid",
+                             "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
+                             "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
+                             "smile_line", "teeth", "undereye"]
+            segment_mapping = info["segments_mapping"]
+            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in face_segments]
+            face_mask = np.isin(segment_img, face_seg_idxs).astype(np.uint16)
+
+            def get_bbox(img: np.ndarray):
+                yxs = np.where(img != 0)
+                bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
+                return bbox
+
+            face_bbox = get_bbox(face_mask)
+            return face_bbox
+
         raise ValueError("Unknown modality")
+
+    def _read_segments(self, number: str, info: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+        import cv2
+
+        segments_file = (
+                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
+        )
+        img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
+        if img is None:
+            raise ValueError(f"Error reading {segments_file}")
+        if number in self._image_sizes:
+            if self._image_sizes[number] != img.shape[::-1]:
+                raise ValueError(
+                    f"Dimensions of different image modalities do not match for render_id={number}"
+                )
+        else:
+            self._image_sizes[number] = img.shape[::-1]
+
+        segment_mapping = info["segments_mapping"]
+        segment_mapping_int = np.full(
+            np.max(list(segment_mapping.values())) + 1,
+            self.segments["default"],
+            dtype=np.uint8,
+        )
+        for key, value in segment_mapping.items():
+            if key in self.segments:
+                segment_mapping_int[value] = self.segments[key]
+
+        segment_img = segment_mapping_int[img]
+        return segment_img, segment_mapping_int

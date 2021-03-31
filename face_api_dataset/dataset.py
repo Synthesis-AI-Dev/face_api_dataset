@@ -175,7 +175,7 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.FACIAL_HAIR: [_Extension.INFO],
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
-        Modality.FACE_BBOX: [_Extension.INFO, _Extension.SEGMENTS],
+        Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
     }[modality]
 
 
@@ -246,6 +246,12 @@ class FaceApiDataset(Base):
         "tongue": 37,
         "undereye": 38,
     }
+
+    FACE_SEGMENTS = ["brow", "cheek_left", "cheek_right", "chin",
+                     "eye_left", "eye_right", "eyelashes", "eyelid",
+                     "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
+                     "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
+                     "smile_line", "teeth", "undereye"]
     """
     Default segmentation mapping.
     """
@@ -255,6 +261,8 @@ class FaceApiDataset(Base):
             root: Union[str, os.PathLike],
             modalities: Optional[List[Modality]] = None,
             segments: Optional[Dict[str, int]] = None,
+            face_segments: Optional[List[str]] = None,
+            face_bbox_pad: int = 0,
             transform: Optional[
                 Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
             ] = None,
@@ -353,6 +361,8 @@ class FaceApiDataset(Base):
         :param Union[str,bytes,os.PathLike] root: Dataset root. All image files (ex. `0.rgb.png`) should be located directly in this directory.
         :param Optional[List[Modality]] modalities: List of modalities to load. If None all the modalities are loaded.
         :param Optional[Dict[str,int]] segments: Mapping from object names to segmentation id. If `None` :attr:`SEGMENTS` mapping is used.
+        :param Optional[List[str]] face_segments: List of object names considered to incorporate a face. If `None` :attr:`FACE_SEGMENTS` mapping is used.
+        :param int face_bbox_pad: Extra area in pixels to pad around height and width of face bounding box.
         :param Optional[Callable[[Dict[Modality,Any]],Dict[Modality,Any]]] transform: Additional transforms to apply to modalities.
         """
         if segments is None:
@@ -360,6 +370,10 @@ class FaceApiDataset(Base):
         if modalities is None:
             modalities = list(Modality)
         self._segments = segments
+        if face_segments is None:
+            face_segments = self.FACE_SEGMENTS
+        self._face_segments = face_segments
+        self._face_bbox_pad = face_bbox_pad
         self._modalities = sorted(modalities, key=lambda x: x.value)
         for modality in self._modalities:
             _check_import(modality)
@@ -455,20 +469,7 @@ class FaceApiDataset(Base):
             return int(number)
 
         if modality == Modality.RGB:
-            import cv2
-
-            rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
-            img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
-            if img is None:
-                raise ValueError(f"Error reading {rgb_file}")
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[1::-1]:
-                    raise ValueError("Dimensions of different modalities do not match")
-            else:
-                self._image_sizes[number] = img.shape[1::-1]
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-            return img
+            return self._read_rgb(number)
 
         if modality == Modality.SEGMENTS:
             segment_img, _ = self._read_segments(number, info)
@@ -591,13 +592,8 @@ class FaceApiDataset(Base):
         if modality == Modality.FACE_BBOX:
             segment_img, segment_mapping_int = self._read_segments(number, info)
 
-            face_segments = ["brow", "cheek_left", "cheek_right", "chin",
-                             "eye_left", "eye_right", "eyelashes", "eyelid",
-                             "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
-                             "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
-                             "smile_line", "teeth", "undereye"]
             segment_mapping = info["segments_mapping"]
-            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in face_segments]
+            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in self._face_segments]
             face_mask = np.isin(segment_img, face_seg_idxs).astype(np.uint16)
 
             def get_bbox(img: np.ndarray):
@@ -605,8 +601,21 @@ class FaceApiDataset(Base):
                 bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
                 return bbox
 
+            height, width, _ = self._read_rgb(number).shape
+
+            def expand_bbox(bbox: Tuple[int, int, int, int], padding: int):
+                x0, y0, x1, y1 = bbox
+                x0 = max(0, x0 - padding)
+                y0 = max(0, y0 - padding)
+                x1 = min(x1 + padding, width)
+                y1 = min(y1 + padding, height)
+
+                return (x0, y0, x1, y1)
+
             face_bbox = get_bbox(face_mask)
-            return face_bbox
+            expanded_face_bbox = expand_bbox(face_bbox, self._face_bbox_pad)
+
+            return expanded_face_bbox
 
         raise ValueError("Unknown modality")
 
@@ -639,3 +648,19 @@ class FaceApiDataset(Base):
 
         segment_img = segment_mapping_int[img]
         return segment_img, segment_mapping_int
+
+    def _read_rgb(self, number: str) -> np.ndarray:
+        import cv2
+
+        rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
+        img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError(f"Error reading {rgb_file}")
+        if number in self._image_sizes:
+            if self._image_sizes[number] != img.shape[1::-1]:
+                raise ValueError("Dimensions of different modalities do not match")
+        else:
+            self._image_sizes[number] = img.shape[1::-1]
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        return img

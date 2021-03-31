@@ -142,7 +142,7 @@ class Modality(Enum):
     """
     FACE_BBOX = auto()
     """
-    Face bounding box in format x0 y0 x1 y1
+    Face bounding box in the format (left, top, right, bottom) in pixels.
     
     **Type**: `Tuple[int, int, int, int]`.
     """

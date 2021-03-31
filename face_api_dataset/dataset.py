@@ -5,7 +5,7 @@ from collections import Sequence
 from enum import Enum, auto
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING
+from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
 
@@ -140,6 +140,12 @@ class Modality(Enum):
     
     **Type**: `ndarray[float64]`. **Dimensions**: 2.
     """
+    FACE_BBOX = auto()
+    """
+    Face bounding box in the format (left, top, right, bottom) in pixels.
+    
+    **Type**: `Tuple[int, int, int, int]`.
+    """
 
 
 class _Extension(str, Enum):
@@ -169,12 +175,13 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.FACIAL_HAIR: [_Extension.INFO],
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
+        Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
     }[modality]
 
 
 def _check_import(modality: Modality) -> None:
     if {_Extension.NORMALS, _Extension.DEPTH, _Extension.ALPHA}.intersection(
-        _modality_files(modality)
+            _modality_files(modality)
     ):
         if find_spec("tiffile") is None:
             raise ImportError(f"Module tiffile is needed to load {modality}")
@@ -243,14 +250,23 @@ class FaceApiDataset(Base):
     Default segmentation mapping.
     """
 
+    FACE_SEGMENTS = ["brow", "cheek_left", "cheek_right", "chin",
+                     "eye_left", "eye_right", "eyelashes", "eyelid",
+                     "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
+                     "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
+                     "smile_line", "teeth", "undereye"]
+    "Segments included in the bounding box."
+
     def __init__(
-        self,
-        root: Union[str, os.PathLike],
-        modalities: Optional[List[Modality]] = None,
-        segments: Optional[Dict[str, int]] = None,
-        transform: Optional[
-            Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
-        ] = None,
+            self,
+            root: Union[str, os.PathLike],
+            modalities: Optional[List[Modality]] = None,
+            segments: Optional[Dict[str, int]] = None,
+            face_segments: Optional[List[str]] = None,
+            face_bbox_pad: int = 0,
+            transform: Optional[
+                Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
+            ] = None,
     ) -> None:
         """
         Initializes FaceApiDataset from the data in :attr:`root` directory, loading listed :attr:`modalities`.
@@ -346,6 +362,8 @@ class FaceApiDataset(Base):
         :param Union[str,bytes,os.PathLike] root: Dataset root. All image files (ex. `0.rgb.png`) should be located directly in this directory.
         :param Optional[List[Modality]] modalities: List of modalities to load. If None all the modalities are loaded.
         :param Optional[Dict[str,int]] segments: Mapping from object names to segmentation id. If `None` :attr:`SEGMENTS` mapping is used.
+        :param Optional[List[str]] face_segments: List of object names considered to incorporate a face. If `None` :attr:`FACE_SEGMENTS` mapping is used.
+        :param int face_bbox_pad: Extra area in pixels to pad around height and width of face bounding box.
         :param Optional[Callable[[Dict[Modality,Any]],Dict[Modality,Any]]] transform: Additional transforms to apply to modalities.
         """
         if segments is None:
@@ -353,6 +371,10 @@ class FaceApiDataset(Base):
         if modalities is None:
             modalities = list(Modality)
         self._segments = segments
+        if face_segments is None:
+            face_segments = self.FACE_SEGMENTS
+        self._face_segments = face_segments
+        self._face_bbox_pad = face_bbox_pad
         self._modalities = sorted(modalities, key=lambda x: x.value)
         for modality in self._modalities:
             _check_import(modality)
@@ -442,62 +464,23 @@ class FaceApiDataset(Base):
         return ret
 
     def _open_modality(
-        self, modality: Modality, number: str, info: Optional[dict]
+            self, modality: Modality, number: str, info: Optional[dict]
     ) -> Any:
         if modality == Modality.RENDER_ID:
             return int(number)
 
         if modality == Modality.RGB:
-            import cv2
-
-            rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
-            img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
-            if img is None:
-                raise ValueError(f"Error reading {rgb_file}")
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[1::-1]:
-                    raise ValueError("Dimensions of different modalities do not match")
-            else:
-                self._image_sizes[number] = img.shape[1::-1]
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-            return img
+            return self._read_rgb(number)
 
         if modality == Modality.SEGMENTS:
-            import cv2
-
-            segments_file = (
-                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
-            )
-            img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
-            if img is None:
-                raise ValueError(f"Error reading {segments_file}")
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[::-1]:
-                    raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={number}"
-                    )
-            else:
-                self._image_sizes[number] = img.shape[::-1]
-
-            segment_mapping = info["segments_mapping"]
-            segment_mapping_int = np.full(
-                np.max(list(segment_mapping.values())) + 1,
-                self.segments["default"],
-                dtype=np.uint8,
-            )
-            for key, value in segment_mapping.items():
-                if key in self.segments:
-                    segment_mapping_int[value] = self.segments[key]
-
-            segment_img = segment_mapping_int[img]
+            segment_img, _ = self._read_segments(number, info)
             return segment_img
 
         if modality == Modality.NORMALS:
             import tiffile
 
             normals_file = (
-                self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+                    self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
             )
             img = tiffile.imread(str(normals_file))
             if img is None:
@@ -606,4 +589,79 @@ class FaceApiDataset(Base):
                 info["facial_attributes"]["gaze"]["vertical_angle"],
             ]
             return np.array(gaze, dtype=np.float64)
+
+        if modality == Modality.FACE_BBOX:
+            segment_img, segment_mapping_int = self._read_segments(number, info)
+
+            segment_mapping = info["segments_mapping"]
+            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in self._face_segments]
+            face_mask = np.isin(segment_img, face_seg_idxs).astype(np.uint16)
+
+            def get_bbox(img: np.ndarray):
+                yxs = np.where(img != 0)
+                bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
+                return bbox
+
+            height, width, _ = self._read_rgb(number).shape
+
+            def expand_bbox(bbox: Tuple[int, int, int, int], padding: int):
+                x0, y0, x1, y1 = bbox
+                x0 = max(0, x0 - padding)
+                y0 = max(0, y0 - padding)
+                x1 = min(x1 + padding, width)
+                y1 = min(y1 + padding, height)
+
+                return (x0, y0, x1, y1)
+
+            face_bbox = get_bbox(face_mask)
+            expanded_face_bbox = expand_bbox(face_bbox, self._face_bbox_pad)
+
+            return expanded_face_bbox
+
         raise ValueError("Unknown modality")
+
+    def _read_segments(self, number: str, info: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+        import cv2
+
+        segments_file = (
+                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
+        )
+        img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
+        if img is None:
+            raise ValueError(f"Error reading {segments_file}")
+        if number in self._image_sizes:
+            if self._image_sizes[number] != img.shape[::-1]:
+                raise ValueError(
+                    f"Dimensions of different image modalities do not match for render_id={number}"
+                )
+        else:
+            self._image_sizes[number] = img.shape[::-1]
+
+        segment_mapping = info["segments_mapping"]
+        segment_mapping_int = np.full(
+            np.max(list(segment_mapping.values())) + 1,
+            self.segments["default"],
+            dtype=np.uint8,
+        )
+        for key, value in segment_mapping.items():
+            if key in self.segments:
+                segment_mapping_int[value] = self.segments[key]
+
+        segment_img = segment_mapping_int[img]
+        return segment_img, segment_mapping_int
+
+    def _read_rgb(self, number: str) -> np.ndarray:
+        import cv2
+
+        rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
+        img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError(f"Error reading {rgb_file}")
+        if number in self._image_sizes:
+            if self._image_sizes[number] != img.shape[1::-1]:
+                raise ValueError("Dimensions of different modalities do not match")
+        else:
+            self._image_sizes[number] = img.shape[1::-1]
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        return img

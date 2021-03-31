@@ -246,15 +246,16 @@ class FaceApiDataset(Base):
         "tongue": 37,
         "undereye": 38,
     }
+    """
+    Default segmentation mapping.
+    """
 
     FACE_SEGMENTS = ["brow", "cheek_left", "cheek_right", "chin",
                      "eye_left", "eye_right", "eyelashes", "eyelid",
                      "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
                      "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
                      "smile_line", "teeth", "undereye"]
-    """
-    Default segmentation mapping.
-    """
+    "Segments included in the bounding box."
 
     def __init__(
             self,

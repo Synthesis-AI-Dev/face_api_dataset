@@ -157,6 +157,19 @@ class _Extension(str, Enum):
     SEGMENTS = "segments.png"
 
 
+class OutOfFrameLandmarkStrategy(Enum):
+    IGNORE = "ignore"
+    CLIP = "clip"
+
+    @staticmethod
+    def clip_landmarks_(landmarks: np.ndarray, height: int, width: int):
+        ys = landmarks[:, 0]
+        xs = landmarks[:, 1]
+
+        np.clip(ys, 0, height - 1, out=ys)
+        np.clip(xs, 0, width - 1, out=xs)
+
+
 def _modality_files(modality: Modality) -> List[_Extension]:
     return {
         Modality.RENDER_ID: [_Extension.INFO],
@@ -257,6 +270,8 @@ class FaceApiDataset(Base):
                      "smile_line", "teeth", "undereye"]
     "Segments included in the bounding box."
 
+    N_LANDMARKS = 68
+
     def __init__(
             self,
             root: Union[str, os.PathLike],
@@ -264,6 +279,7 @@ class FaceApiDataset(Base):
             segments: Optional[Dict[str, int]] = None,
             face_segments: Optional[List[str]] = None,
             face_bbox_pad: int = 0,
+            out_of_frame_landmark_strategy: OutOfFrameLandmarkStrategy = OutOfFrameLandmarkStrategy.IGNORE,
             transform: Optional[
                 Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
             ] = None,
@@ -402,6 +418,7 @@ class FaceApiDataset(Base):
             image_numbers.add(number)
         self._image_numbers = sorted(list(image_numbers), key=int)
         self._image_sizes: Dict[str, int] = {}
+        self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
         self._transform = transform
 
     @property
@@ -527,15 +544,27 @@ class FaceApiDataset(Base):
             return img
 
         if modality == Modality.LANDMARKS:
-            landmarks = []
             if number not in self._image_sizes:
                 raise ValueError(
                     "Landmarks can only be loaded with at least one image modality"
                 )
             scale = self._image_sizes[number]
+            landmarks = np.zeros((self.N_LANDMARKS, 2), dtype=np.float64)
+
+            n_landmarks = len(info["landmarks"])
+            if n_landmarks != self.N_LANDMARKS:
+                json_file = self._root / f"{number}.{_modality_files(Modality.LANDMARKS)[0]}"
+                msg = (f"Error reading landmarks for item with index: {number} from file: {json_file}\n",
+                       f"Got {n_landmarks} landmarks instead of {self.N_LANDMARKS}")
+                raise ValueError(msg)
+
             for landmark in info["landmarks"]:
-                landmarks.append(landmark["screen_space_pos"])
-            return np.array(landmarks, dtype=np.float64) * scale
+                landmarks[landmark["ptnum"]] = landmark["screen_space_pos"]
+
+            scaled_landmarks = landmarks * scale
+            if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
+                OutOfFrameLandmarkStrategy.clip_landmarks_(scaled_landmarks, scale, scale)
+            return scaled_landmarks
 
         if modality == Modality.LANDMARKS_3D:
             landmarks = []

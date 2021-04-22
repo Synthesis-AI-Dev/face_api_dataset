@@ -417,7 +417,7 @@ class FaceApiDataset(Base):
                         )
             image_numbers.add(number)
         self._image_numbers = sorted(list(image_numbers), key=int)
-        self._image_sizes: Dict[str, int] = {}
+        self._image_sizes: Dict[str, Tuple[int, int]] = {}
         self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
         self._transform = transform
 
@@ -563,7 +563,8 @@ class FaceApiDataset(Base):
 
             scaled_landmarks = landmarks * scale
             if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
-                OutOfFrameLandmarkStrategy.clip_landmarks_(scaled_landmarks, scale, scale)
+                h, w = scale
+                OutOfFrameLandmarkStrategy.clip_landmarks_(scaled_landmarks, h, w)
             return scaled_landmarks
 
         if modality == Modality.LANDMARKS_3D:

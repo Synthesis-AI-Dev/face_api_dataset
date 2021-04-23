@@ -13,13 +13,34 @@ import numpy as np
 class Modality(Enum):
     """
     Different modalities of Synthesis AI dataset.
-    All image modalities are in `[y][x][channel]` format, with axis going as follows::
+    All image modalities are in `[y][x][channel]` format, with axis going as follows (similar to OpenCV)::
 
         ┌-----> x
         |
         |
         v
+        y.
+
+    All 2D screen coordinates are in `(x, y)` format, with axis going as follows:::
+
+
+        ┌-----> x
+        |
+        |
+        v
+        y.
+
+    All 2D screen coordinates are measured
+
+    All 3D screen coordinates are in `(x, y, z)` format, with z-axis pointing towards the camera (away from fov) and other axis going as follows (similar to OpenGL, Blender)::
+
         y
+        ^
+        |
+        |
+        L-----> x
+
+    All 3D coordinates are measured in meters.
     """
 
     RENDER_ID = auto()
@@ -42,7 +63,7 @@ class Modality(Enum):
     """
     DEPTH = auto()
     """
-    Depth Image. All values are positive floats. Background has depth=0.
+    Z-Depth Image (distance in meters is measured to camera plane). All values are positive floats. Background has depth=0.
     
     **Type**: `ndarray[float16]`. **Channels**: 1.
     """
@@ -138,13 +159,19 @@ class Modality(Enum):
     """
     Gaze angles in image space.
     
-    **Type**: `ndarray[float64]`. **Dimensions**: 2.
+    **Type**: `ndarray[float64]`. **Dimensions**: (2,3).
     """
     FACE_BBOX = auto()
     """
     Face bounding box in the format (left, top, right, bottom) in pixels.
     
     **Type**: `Tuple[int, int, int, int]`.
+    """
+    CAM_INTRINSICS = auto()
+    """
+    3x3 matrix for 3D world to 2D screen coordinates transform.
+    
+    **Type**: `ndarray[float64]`. **Dimensions**: (3,3).
     """
 
 
@@ -176,6 +203,7 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
         Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
+        Modality.CAM_INTRINSICS: [_Extension.INFO],
     }[modality]
 
 
@@ -584,11 +612,10 @@ class FaceApiDataset(Base):
             return info["facial_attributes"]["expression"]
 
         if modality == Modality.GAZE:
-            gaze = [
-                info["facial_attributes"]["gaze"]["horizontal_angle"],
-                info["facial_attributes"]["gaze"]["vertical_angle"],
-            ]
-            return np.array(gaze, dtype=np.float64)
+            world_to_cam = np.array(info["camera"]["transform_world2cam"]["mat_4x4"])
+            gaze_left = np.array(info["gaze_values"]["eye_left"]["gaze_vector"])
+            gaze_right = np.array(info["gaze_values"]["eye_right"]["gaze_vector"])
+            return np.stack([world_to_cam @ gaze_left, world_to_cam @ gaze_right])
 
         if modality == Modality.FACE_BBOX:
             segment_img, segment_mapping_int = self._read_segments(number, info)
@@ -617,6 +644,9 @@ class FaceApiDataset(Base):
             expanded_face_bbox = expand_bbox(face_bbox, self._face_bbox_pad)
 
             return expanded_face_bbox
+
+        if modality == Modality.CAM_INTRINSICS:
+            return np.array(info["camera"]["intrinsics"])
 
         raise ValueError("Unknown modality")
 

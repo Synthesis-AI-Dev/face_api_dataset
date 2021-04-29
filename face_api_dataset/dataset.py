@@ -146,6 +146,12 @@ class Modality(Enum):
     
     **Type**: `Tuple[int, int, int, int]`.
     """
+    ACCESSORIES = auto()
+    """
+    Accessories - the same as in info.json.
+    
+    **Type**: `Dict[str, Dict]`.
+    """
 
 
 class _Extension(str, Enum):
@@ -189,6 +195,7 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
         Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
+        Modality.ACCESSORIES: [_Extension.INFO],
     }[modality]
 
 
@@ -647,6 +654,11 @@ class FaceApiDataset(Base):
             expanded_face_bbox = expand_bbox(face_bbox, self._face_bbox_pad)
 
             return expanded_face_bbox
+
+        if modality == Modality.ACCESSORIES:
+            accessories = info["accessories"]
+            return accessories
+
 
         raise ValueError("Unknown modality")
 

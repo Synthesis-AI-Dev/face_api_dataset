@@ -40,6 +40,7 @@ class Modality(Enum):
         |
         L-----> x
 
+    Camera position is always '(0, 0, 0)'.
     All 3D coordinates are measured in meters.
     """
 
@@ -429,7 +430,7 @@ class FaceApiDataset(Base):
                         )
             image_numbers.add(number)
         self._image_numbers = sorted(list(image_numbers), key=int)
-        self._image_sizes: Dict[str, int] = {}
+        self._image_sizes: Dict[str, Tuple[int, int]] = {}
         self._transform = transform
 
     @property
@@ -615,9 +616,8 @@ class FaceApiDataset(Base):
             world_to_cam = np.array(info["camera"]["transform_world2cam"]["mat_4x4"])
             gaze_left = np.array(info["gaze_values"]["eye_left"]["gaze_vector"] + [0.0])
             gaze_right = np.array(info["gaze_values"]["eye_right"]["gaze_vector"] + [.0])
-            print(world_to_cam.shape, gaze_left.shape)
             return np.stack([(world_to_cam @ gaze_left)[:3], (world_to_cam @ gaze_right)[:3]])
-            return np.stack([(gaze_left)[:3], (gaze_right)[:3]])
+
 
         if modality == Modality.FACE_BBOX:
             segment_img, segment_mapping_int = self._read_segments(number, info)

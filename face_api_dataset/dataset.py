@@ -152,6 +152,12 @@ class Modality(Enum):
     
     **Type**: `Dict[str, Dict]`.
     """
+    HDRI = auto()
+    """
+    Hdri - the same as in info.json.
+    
+    **Type**: `Dict[str, Dict]`.
+    """
 
 
 class _Extension(str, Enum):
@@ -196,6 +202,7 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.GAZE: [_Extension.INFO],
         Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
         Modality.ACCESSORIES: [_Extension.INFO],
+        Modality.HDRI: [_Extension.INFO],
     }[modality]
 
 
@@ -659,6 +666,9 @@ class FaceApiDataset(Base):
             accessories = info["accessories"]
             return accessories
 
+        if modality == Modality.HDRI:
+            hdri = info["hdri"]
+            return hdri
 
         raise ValueError("Unknown modality")
 

@@ -2,12 +2,16 @@ import copy
 import json
 import os
 from collections import Sequence
-from enum import Enum, auto
+from enum import Enum
+from enum import auto
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
+import pandas as pd
+
+Landmark = Tuple[str, float, float]
 
 
 class Modality(Enum):
@@ -58,13 +62,45 @@ class Modality(Enum):
     
     **Type**: `ndarray[uint16]`. **Channels**: 1.
     """
-    LANDMARKS = auto()
+    LANDMARKS_IBUG68 = auto()
     """
-    iBUG-68 landmarks. Each landmark is given by two coordinates (x,y) in pixels.
+    iBUG-68 landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+    Each keypoint is a 2D projection of a 3D landmark. 
     
-    **Type**: `ndarray[float64]`. **Dimensions**: (68, 2).
+    **Type**: `List[Type[str, int, int]`.
     """
-    LANDMARKS_3D = auto()
+    LANDMARKS_CONTOUR_IBUG68 = auto()
+    """
+    iBUG-68 contour landmarks. Each landmark is given by two coordinates (name, x,y) in pixels.
+    Each keypoint is defined in a similar manner to human labelers marking 2D face kepoints.
+    
+    **Type**: `List[Type[str, int, int]`. Should have 68 points.
+    """
+    LANDMARKS_KINECT_V2 = auto()
+    """
+    Kinect v2 landmarks. Each landmark by name and two coordinates (name, x,y) in pixels.
+
+    **Type**: `List[Type[str, int, int]`.
+    """
+    LANDMARKS_MEDIAPIPE = auto()
+    """
+    MediaPipe Pose landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+
+    **Type**: `List[Type[str, int, int]`.
+    """
+    LANDMARKS_COCO = auto()
+    """
+    COCO Whole Body landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+
+    **Type**: `List[Type[str, int, int]`.
+    """
+    LANDMARKS_MPEG4 = auto()
+    """
+    MPEG4 landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+
+    **Type**: `List[Type[str, int, int]`.
+    """
+    LANDMARKS_3D_IBUG68 = auto()
     """
     iBUG-68 landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.
 
@@ -72,7 +108,7 @@ class Modality(Enum):
     """
     PUPILS = auto()
     """
-    Coordinates of pupils. Each pupil is given by two coordinates (x,y) in pixels.
+    Coordinates of pupils. Each pupil is given by name and two coordinates (name, x,y) in pixels.
     
     **Type**: `ndarray[float64]`. **Dimensions**: (2, 2).
     """
@@ -162,12 +198,13 @@ class OutOfFrameLandmarkStrategy(Enum):
     CLIP = "clip"
 
     @staticmethod
-    def clip_landmarks_(landmarks: np.ndarray, height: int, width: int):
-        ys = landmarks[:, 0]
-        xs = landmarks[:, 1]
-
-        np.clip(ys, 0, height - 1, out=ys)
-        np.clip(xs, 0, width - 1, out=xs)
+    def clip_landmarks_(landmarks: List[Landmark], height: int, width: int) -> List[Landmark]:
+        clipped_landmarks: List[Landmark] = []
+        for name, x, y in landmarks:
+            xx = np.clip(x, 0, width - 1)
+            yy = np.clip(y, 0, height - 1)
+            clipped_landmarks.append((name, int(xx), int(yy)))
+        return clipped_landmarks
 
 
 def _modality_files(modality: Modality) -> List[_Extension]:
@@ -178,8 +215,13 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.DEPTH: [_Extension.DEPTH],
         Modality.ALPHA: [_Extension.ALPHA],
         Modality.SEGMENTS: [_Extension.INFO, _Extension.SEGMENTS],
-        Modality.LANDMARKS: [_Extension.INFO],
-        Modality.LANDMARKS_3D: [_Extension.INFO],
+        Modality.LANDMARKS_IBUG68: [_Extension.INFO],
+        Modality.LANDMARKS_CONTOUR_IBUG68: [_Extension.INFO],
+        Modality.LANDMARKS_3D_IBUG68: [_Extension.INFO],
+        Modality.LANDMARKS_KINECT_V2: [_Extension.INFO],
+        Modality.LANDMARKS_COCO: [_Extension.INFO],
+        Modality.LANDMARKS_MEDIAPIPE: [_Extension.INFO],
+        Modality.LANDMARKS_MPEG4: [_Extension.INFO],
         Modality.PUPILS: [_Extension.INFO],
         Modality.PUPILS_3D: [_Extension.INFO],
         Modality.IDENTITY: [_Extension.INFO],
@@ -543,31 +585,15 @@ class FaceApiDataset(Base):
                 raise ValueError(f"Error reading {depth_file}")
             return img
 
-        if modality == Modality.LANDMARKS:
-            if number not in self._image_sizes:
-                raise ValueError(
-                    "Landmarks can only be loaded with at least one image modality"
-                )
-            scale = self._image_sizes[number]
-            landmarks = np.zeros((self.N_LANDMARKS, 2), dtype=np.float64)
+        if modality in (Modality.LANDMARKS_IBUG68, Modality.LANDMARKS_CONTOUR_IBUG68):
+            return self._read_face_landmarks_2d(info, modality, number)
 
-            n_landmarks = len(info["landmarks"])
-            if n_landmarks != self.N_LANDMARKS:
-                json_file = self._root / f"{number}.{_modality_files(Modality.LANDMARKS)[0]}"
-                msg = (f"Error reading landmarks for item with index: {number} from file: {json_file}\n",
-                       f"Got {n_landmarks} landmarks instead of {self.N_LANDMARKS}")
-                raise ValueError(msg)
+        if modality in (Modality.LANDMARKS_KINECT_V2, Modality.LANDMARKS_COCO,
+                        Modality.LANDMARKS_MEDIAPIPE, Modality.LANDMARKS_MPEG4):
+            landmark_meta = self._read_body_landmarks(info, modality, self._image_sizes[number])
+            return landmark_meta
 
-            for landmark in info["landmarks"]:
-                landmarks[landmark["ptnum"]] = landmark["screen_space_pos"]
-
-            scaled_landmarks = landmarks * scale
-            if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
-                h, w = scale
-                OutOfFrameLandmarkStrategy.clip_landmarks_(scaled_landmarks, h, w)
-            return scaled_landmarks
-
-        if modality == Modality.LANDMARKS_3D:
+        if modality == Modality.LANDMARKS_3D_IBUG68:
             landmarks = []
             for landmark in info["landmarks"]:
                 landmarks.append(landmark["camera_space_pos"])
@@ -695,3 +721,64 @@ class FaceApiDataset(Base):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         return img
+
+    @staticmethod
+    def _read_body_landmarks(info: dict, mdt: Modality, image_size: Tuple[int, int]
+                             ) -> List[Landmark]:
+        if mdt is Modality.LANDMARKS_COCO:
+            meta_dict = info["body_landmarks"]["coco"]["whole_body"]
+        elif mdt is Modality.LANDMARKS_KINECT_V2:
+            meta_dict = info["body_landmarks"]["kinect_v2"]
+        elif mdt is Modality.LANDMARKS_MEDIAPIPE:
+            meta_dict = info["body_landmarks"]["mediapipe"]["body"]
+        elif mdt is Modality.LANDMARKS_MPEG4:
+            meta_dict = info["body_landmarks"]["mpeg4"]
+        else:
+            raise ValueError(f"Unrecognized format for body landmarks {mdt}.")
+
+        df = pd.DataFrame(meta_dict)
+        if mdt is Modality.LANDMARKS_MPEG4:
+            df = df[["screen_space_pos", "name"]]
+            df.rename(columns={"name": "id"}, inplace=True)
+        else:
+            df = df[["screen_space_pos", "id"]]
+        df.set_index("id", inplace=True)
+        df = df.sort_index()
+
+        h, w = image_size
+        df = df.assign(x=df.screen_space_pos.apply(lambda l: l[0] * w))
+        df = df.assign(y=df.screen_space_pos.apply(lambda l: l[1] * h))
+        df.drop("screen_space_pos", 1, inplace=True)
+
+        return df.to_records()
+
+    def _read_face_landmarks_2d(self, info: dict, mdt: Modality, number: str) -> List[Landmark]:
+        if mdt is Modality.LANDMARKS_IBUG68:
+            meta_dict = info["landmarks"]
+        elif mdt is Modality.LANDMARKS_CONTOUR_IBUG68:
+            meta_dict = info["contour_landmarks"]
+        else:
+            raise ValueError(f"Unrecognized format for 2D face landmarks {mdt}.")
+        if number not in self._image_sizes:
+            raise ValueError(
+                "Landmarks can only be loaded with at least one image modality"
+            )
+
+        if mdt is Modality.LANDMARKS_IBUG68:
+            n_landmarks = len(meta_dict)
+            if n_landmarks != self.N_LANDMARKS:
+                json_file = self._root / f"{number}.{_modality_files(Modality.LANDMARKS_IBUG68)[0]}"
+                msg = (f"Error reading landmarks for item with index: {number} from file: {json_file}\n",
+                       f"Got {n_landmarks} landmarks instead of {self.N_LANDMARKS}")
+                raise ValueError(msg)
+
+        h, w = self._image_sizes[number]
+        landmarks: List[Landmark] = []
+        for landmark in meta_dict:
+            x, y = landmark["screen_space_pos"]
+            x, y = x * w, y * h
+            landmarks.append((str(landmark["ptnum"]), x, y))
+
+        if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
+            landmarks = OutOfFrameLandmarkStrategy.clip_landmarks_(landmarks, h, w)
+        return landmarks

@@ -200,7 +200,10 @@ class Modality(Enum):
     """
     Gaze angles in image space.
     
-    **Type**: `Dict[str, float]`.
+    **Format**::
+    
+        {'horizontal_angle': float64, 
+         'vertical_angle': float64}
     """
     FACE_BBOX = auto()
     """

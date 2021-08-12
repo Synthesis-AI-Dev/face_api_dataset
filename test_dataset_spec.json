@@ -1,0 +1,608 @@
+{
+  "render": {
+    "resolution": {
+      "w": 512,
+      "h": 512
+    }
+  },
+  "faces": [
+    {
+      "identities": {
+        "ids": [
+          1177,
+          1298,
+          1626,
+          1510,
+          1326,
+          1024
+        ],
+        "renders_per_identity": 1
+      },
+      "facial_attributes": {
+        "expression": [
+          {
+            "name": [
+              "all"
+            ],
+            "intensity": {
+              "type": "range",
+              "values": {
+                "min": 0.5,
+                "max": 1.0
+              }
+            },
+            "percent": 100
+          }
+        ],
+        "head_turn": [
+          {
+            "pitch": {
+              "type": "range",
+              "values": {
+                "min": -20,
+                "max": 20
+              }
+            },
+            "yaw": {
+              "type": "range",
+              "values": {
+                "min": -45,
+                "max": 45
+              }
+            },
+            "roll": {
+              "type": "range",
+              "values": {
+                "min": -45,
+                "max": 45
+              }
+            },
+            "percent": 100
+          }
+        ],
+        "hair": [
+          {
+            "style": [
+              "all"
+            ],
+            "color": [
+              "all"
+            ],
+            "color_seed": {
+              "type": "list",
+              "values": [
+                0
+              ]
+            },
+            "relative_density": {
+              "type": "range",
+              "values": {
+                "min": 0.7,
+                "max": 1.0
+              }
+            },
+            "relative_length": {
+              "type": "range",
+              "values": {
+                "min": 0.7,
+                "max": 1.0
+              }
+            },
+            "gender_matched_only": true,
+            "ethnicity_matched_only": false,
+            "percent": 100
+          }
+        ],
+        "facial_hair": [
+          {
+            "style": [
+              "all"
+            ],
+            "color": [
+              "all"
+            ],
+            "color_seed": {
+              "type": "list",
+              "values": [
+                0
+              ]
+            },
+            "match_hair_color": true,
+            "relative_density": {
+              "type": "range",
+              "values": {
+                "min": 0.7,
+                "max": 1.0
+              }
+            },
+            "relative_length": {
+              "type": "range",
+              "values": {
+                "min": 0.7,
+                "max": 1.0
+              }
+            },
+            "percent": 40
+          },
+          {
+            "style": [
+              "none"
+            ],
+            "percent": 60
+          }
+        ]
+      },
+      "accessories": {
+        "glasses": [
+            {
+              "style": [
+                "all"
+              ],
+              "lens_color": [
+                "all"
+              ],
+              "transparency": {
+                "type": "list",
+                "values": [0, 1]
+              },
+              "metalness": {
+                "type": "list",
+                "values": [0, 1]
+              },
+              "gender_matched_only": true,
+              "percent": 20
+            },
+            {
+              "style": [
+                "none"
+              ],
+              "percent": 80
+            }
+        ],
+        "headwear": [
+          {
+            "style": [
+              "all"
+            ],
+            "gender_matched_only": true,
+            "percent": 20
+          },
+          {
+            "style": [
+              "none"
+            ],
+            "gender_matched_only": true,
+            "percent": 80
+          }
+        ],
+        "masks": [
+          {
+            "style": [
+              "all"
+            ],
+            "position": ["all"],
+            "variant": ["all"],
+            "percent": 20
+          },
+          {
+            "style": [
+              "none"
+            ],
+            "percent": 80
+          }
+        ],
+        "headphones": [
+          {
+            "style": [
+              "all"
+            ],
+            "percent": 20
+          },
+          {
+            "style": [
+              "none"
+            ],
+            "percent": 80
+          }
+        ]
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          33
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "wave_hello"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "work_casual_1"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          80
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "look_left"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "work_professional_1"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          80
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "answer_phone_talk"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "sunday_bbq_1"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          33
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "air_swipe"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "jeans_and_hoodie_1"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          33
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "elbow_bump"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "longsleeve_dress_yellow"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    },
+    {
+      "identities": {
+        "ids": [
+          80,
+          33
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "gesture": [
+            "drink_from_cup"
+          ],
+          "mirrored": true,
+          "position_seed": 1,
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "slingdress_white"
+          ],
+          "gender_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera": {
+        "location": {
+          "vertical_angle": {
+            "type": "list",
+            "values": [
+              -3
+            ]
+          },
+          "depth_meters": {
+            "type": "list",
+            "values": [
+              2
+            ]
+          },
+          "offset_vertical": {
+            "type": "list",
+            "values": [
+              -0.25
+            ]
+          }
+        },
+        "specifications": {
+          "focal_length": {
+            "type": "list",
+            "values": [
+              28
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

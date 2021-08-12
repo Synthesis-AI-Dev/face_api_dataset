@@ -11,7 +11,9 @@ from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CH
 import numpy as np
 import pandas as pd
 
-Landmark = Tuple[str, float, float]
+Id = str
+Landmark_2D = Tuple[float, float]
+Landmark_3D = Tuple[float, float, float]
 
 
 class Modality(Enum):
@@ -64,59 +66,83 @@ class Modality(Enum):
     """
     LANDMARKS_IBUG68 = auto()
     """
-    iBUG-68 landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+    iBUG-68 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
     Each keypoint is a 2D projection of a 3D landmark. 
     
-    **Type**: `List[Type[str, int, int]`.
+    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
     """
     LANDMARKS_CONTOUR_IBUG68 = auto()
     """
     iBUG-68 contour landmarks. Each landmark is given by two coordinates (name, x,y) in pixels.
     Each keypoint is defined in a similar manner to human labelers marking 2D face kepoints.
     
-    **Type**: `List[Type[str, int, int]`. Should have 68 points.
+    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
     """
     LANDMARKS_KINECT_V2 = auto()
     """
-    Kinect v2 landmarks. Each landmark by name and two coordinates (name, x,y) in pixels.
+    Kinect v2 landmarks. Each landmark by name and two coordinates (x,y) in pixels.
 
-    **Type**: `List[Type[str, int, int]`.
+    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 32 points.
     """
     LANDMARKS_MEDIAPIPE = auto()
     """
-    MediaPipe Pose landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+    MediaPipe pose landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `List[Type[str, int, int]`.
+    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 33 points.
     """
     LANDMARKS_COCO = auto()
     """
-    COCO Whole Body landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+    COCO whole body landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `List[Type[str, int, int]`.
+    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 133 points.
     """
     LANDMARKS_MPEG4 = auto()
     """
-    MPEG4 landmarks. Each landmark is given by name and two coordinates (name, x,y) in pixels.
+    MPEG4 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `List[Type[str, int, int]`.
+    **Type**: `Dict[str, Tuple[float, float]`.
     """
     LANDMARKS_3D_IBUG68 = auto()
     """
-    iBUG-68 landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.
+    iBUG-68 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
 
-    **Type**: `ndarray[float64]`. **Dimensions**: (68, 3).
+    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 68 points.
+    """
+    LANDMARKS_3D_KINECT_V2 = auto()
+    """
+    Kinect v2 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 32 points.
+    """
+    LANDMARKS_3D_MEDIAPIPE = auto()
+    """
+    MediaPipe pose landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[str, Tuple[float, float, float]]`. hould have no more than 33 points.
+    """
+    LANDMARKS_3D_COCO = auto()
+    """
+    COCO whole body landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 133 points.
+    """
+    LANDMARKS_3D_MPEG4 = auto()
+    """
+    MPEG4 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[str, Tuple[float, float, float]]`.
     """
     PUPILS = auto()
     """
-    Coordinates of pupils. Each pupil is given by name and two coordinates (name, x,y) in pixels.
+    Coordinates of pupils. Each pupil is given by name and two coordinates (x,y) in pixels.
     
-    **Type**: `ndarray[float64]`. **Dimensions**: (2, 2).
+    **Type**: `Dict[str, Tuple[float, float]]`.
     """
     PUPILS_3D = auto()
     """
-    Coordinates of pupils in 3D. Each pupil is given by three coordinates (x,y,z) in camera space.
+    Coordinates of pupils in 3D. Each pupil is given by name and three coordinates (x,y,z) in camera space.
  
-    **Type**: `ndarray[float64]`. **Dimensions**: (2, 3).
+    **Type**: `Dict[str, Tuple[float, float, float]]`.
     """
     IDENTITY = auto()
     """
@@ -174,7 +200,7 @@ class Modality(Enum):
     """
     Gaze angles in image space.
     
-    **Type**: `ndarray[float64]`. **Dimensions**: 2.
+    **Type**: `Dict[str, float]`.
     """
     FACE_BBOX = auto()
     """
@@ -198,12 +224,12 @@ class OutOfFrameLandmarkStrategy(Enum):
     CLIP = "clip"
 
     @staticmethod
-    def clip_landmarks_(landmarks: List[Landmark], height: int, width: int) -> List[Landmark]:
-        clipped_landmarks: List[Landmark] = []
-        for name, x, y in landmarks:
+    def clip_landmarks_(landmarks: Dict[Id, Landmark_2D], height: int, width: int) -> Dict[Id, Landmark_2D]:
+        clipped_landmarks: Dict[Id, Landmark_2D] = {}
+        for name, (x, y) in landmarks.items():
             xx = np.clip(x, 0, width - 1)
             yy = np.clip(y, 0, height - 1)
-            clipped_landmarks.append((name, int(xx), int(yy)))
+            clipped_landmarks[name] = (float(xx), float(yy))
         return clipped_landmarks
 
 
@@ -217,11 +243,15 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.SEGMENTS: [_Extension.INFO, _Extension.SEGMENTS],
         Modality.LANDMARKS_IBUG68: [_Extension.INFO],
         Modality.LANDMARKS_CONTOUR_IBUG68: [_Extension.INFO],
-        Modality.LANDMARKS_3D_IBUG68: [_Extension.INFO],
         Modality.LANDMARKS_KINECT_V2: [_Extension.INFO],
         Modality.LANDMARKS_COCO: [_Extension.INFO],
         Modality.LANDMARKS_MEDIAPIPE: [_Extension.INFO],
         Modality.LANDMARKS_MPEG4: [_Extension.INFO],
+        Modality.LANDMARKS_3D_IBUG68: [_Extension.INFO],
+        Modality.LANDMARKS_3D_KINECT_V2: [_Extension.INFO],
+        Modality.LANDMARKS_3D_COCO: [_Extension.INFO],
+        Modality.LANDMARKS_3D_MEDIAPIPE: [_Extension.INFO],
+        Modality.LANDMARKS_3D_MPEG4: [_Extension.INFO],
         Modality.PUPILS: [_Extension.INFO],
         Modality.PUPILS_3D: [_Extension.INFO],
         Modality.IDENTITY: [_Extension.INFO],
@@ -593,6 +623,12 @@ class FaceApiDataset(Base):
             landmark_meta = self._read_body_landmarks(info, modality, self._image_sizes[number])
             return landmark_meta
 
+        if modality in (Modality.LANDMARKS_3D_IBUG68, Modality.LANDMARKS_3D_KINECT_V2,
+                        Modality.LANDMARKS_3D_COCO, Modality.LANDMARKS_3D_MEDIAPIPE,
+                        Modality.LANDMARKS_3D_MPEG4):
+            landmark_meta = self._read_landmarks_3d(info, modality)
+            return landmark_meta
+
         if modality == Modality.LANDMARKS_3D_IBUG68:
             landmarks = []
             for landmark in info["landmarks"]:
@@ -609,14 +645,15 @@ class FaceApiDataset(Base):
                     "Pupils can only be loaded with at least one image modality"
                 )
             scale = self._image_sizes[number]
-            return np.array(pupils, dtype=np.float64) * scale
+            pupils_np = np.array(pupils, dtype=np.float64) * scale
+            return {"pupil_left": tuple(pupils_np[0]),
+                    "pupil_right": tuple(pupils_np[1])}
 
         if modality == Modality.PUPILS_3D:
-            pupils = [
-                info["pupil_coordinates"]["pupil_left"]["camera_space_pos"],
-                info["pupil_coordinates"]["pupil_right"]["camera_space_pos"],
-            ]
-            return np.array(pupils, dtype=np.float64)
+            pupils = {
+                "pupil_left": tuple(info["pupil_coordinates"]["pupil_left"]["camera_space_pos"]),
+                "pupil_right": tuple(info["pupil_coordinates"]["pupil_right"]["camera_space_pos"])}
+            return pupils
 
         if modality == Modality.IDENTITY:
             return info["identity_metadata"]["id"]
@@ -640,11 +677,7 @@ class FaceApiDataset(Base):
             return info["facial_attributes"]["expression"]
 
         if modality == Modality.GAZE:
-            gaze = [
-                info["facial_attributes"]["gaze"]["horizontal_angle"],
-                info["facial_attributes"]["gaze"]["vertical_angle"],
-            ]
-            return np.array(gaze, dtype=np.float64)
+            return info["facial_attributes"]["gaze"]
 
         if modality == Modality.FACE_BBOX:
             segment_img, segment_mapping_int = self._read_segments(number, info)
@@ -723,25 +756,36 @@ class FaceApiDataset(Base):
         return img
 
     @staticmethod
-    def _read_body_landmarks(info: dict, mdt: Modality, image_size: Tuple[int, int]
-                             ) -> List[Landmark]:
-        if mdt is Modality.LANDMARKS_COCO:
+    def _read_modality_meta(info: dict, mdt: Modality) -> dict:
+        if mdt in (Modality.LANDMARKS_IBUG68, Modality.LANDMARKS_3D_IBUG68):
+            meta_dict = info["landmarks"]
+        elif mdt is Modality.LANDMARKS_CONTOUR_IBUG68:
+            meta_dict = info["contour_landmarks"]
+        elif mdt in (Modality.LANDMARKS_COCO, Modality.LANDMARKS_3D_COCO):
             meta_dict = info["body_landmarks"]["coco"]["whole_body"]
-        elif mdt is Modality.LANDMARKS_KINECT_V2:
+        elif mdt in (Modality.LANDMARKS_KINECT_V2, Modality.LANDMARKS_3D_KINECT_V2):
             meta_dict = info["body_landmarks"]["kinect_v2"]
-        elif mdt is Modality.LANDMARKS_MEDIAPIPE:
+        elif mdt in (Modality.LANDMARKS_MEDIAPIPE, Modality.LANDMARKS_3D_MEDIAPIPE):
             meta_dict = info["body_landmarks"]["mediapipe"]["body"]
-        elif mdt is Modality.LANDMARKS_MPEG4:
+        elif mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
             meta_dict = info["body_landmarks"]["mpeg4"]
         else:
-            raise ValueError(f"Unrecognized format for body landmarks {mdt}.")
+            raise ValueError(f"Unrecognized modality for 3D landmarks {mdt}.")
+        return meta_dict
+
+    @classmethod
+    def _read_body_landmarks(cls, info: dict, mdt: Modality, image_size: Tuple[int, int]
+                             ) -> Dict[Id, Landmark_2D]:
+        meta_dict = cls._read_modality_meta(info, mdt)
 
         df = pd.DataFrame(meta_dict)
-        if mdt is Modality.LANDMARKS_MPEG4:
+        if mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
+            # TODO https://synthesisai.atlassian.net/browse/ENG-357
             df = df[["screen_space_pos", "name"]]
             df.rename(columns={"name": "id"}, inplace=True)
         else:
             df = df[["screen_space_pos", "id"]]
+            df["id"] = df["id"].astype(str)
         df.set_index("id", inplace=True)
         df = df.sort_index()
 
@@ -750,15 +794,10 @@ class FaceApiDataset(Base):
         df = df.assign(y=df.screen_space_pos.apply(lambda l: l[1] * h))
         df.drop("screen_space_pos", 1, inplace=True)
 
-        return df.to_records()
+        return {k: (v["x"], v["y"]) for k, v in df.to_dict('index').items()}
 
-    def _read_face_landmarks_2d(self, info: dict, mdt: Modality, number: str) -> List[Landmark]:
-        if mdt is Modality.LANDMARKS_IBUG68:
-            meta_dict = info["landmarks"]
-        elif mdt is Modality.LANDMARKS_CONTOUR_IBUG68:
-            meta_dict = info["contour_landmarks"]
-        else:
-            raise ValueError(f"Unrecognized format for 2D face landmarks {mdt}.")
+    def _read_face_landmarks_2d(self, info: dict, mdt: Modality, number: str) -> Dict[Id, Landmark_2D]:
+        meta_dict = self._read_modality_meta(info, mdt)
         if number not in self._image_sizes:
             raise ValueError(
                 "Landmarks can only be loaded with at least one image modality"
@@ -773,12 +812,28 @@ class FaceApiDataset(Base):
                 raise ValueError(msg)
 
         h, w = self._image_sizes[number]
-        landmarks: List[Landmark] = []
+        landmarks: Dict[Id, Landmark_2D] = {}
         for landmark in meta_dict:
             x, y = landmark["screen_space_pos"]
             x, y = x * w, y * h
-            landmarks.append((str(landmark["ptnum"]), x, y))
+            landmarks[str(landmark["ptnum"])] = (x, y)
 
         if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
             landmarks = OutOfFrameLandmarkStrategy.clip_landmarks_(landmarks, h, w)
+        return landmarks
+
+    @classmethod
+    def _read_landmarks_3d(cls, info: dict, mdt: Modality) -> Dict[Id, Landmark_3D]:
+        meta_dict = cls._read_modality_meta(info, mdt)
+
+        landmarks: Dict[Id, Landmark_3D] = {}
+        for landmark in meta_dict:
+            if mdt is Modality.LANDMARKS_3D_IBUG68:
+                lmk_name = str(landmark["ptnum"])
+            elif mdt is Modality.LANDMARKS_3D_MPEG4:  # TODO https://synthesisai.atlassian.net/browse/ENG-357
+                lmk_name = landmark["name"]
+            else:
+                lmk_name = str(landmark["id"])
+            landmarks[lmk_name] = tuple(landmark["camera_space_pos"])
+
         return landmarks

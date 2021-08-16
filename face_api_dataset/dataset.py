@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
-import pandas as pd
 
 Id = str
 Landmark_2D = Tuple[float, float]
@@ -780,24 +779,18 @@ class FaceApiDataset(Base):
     def _read_body_landmarks(cls, info: dict, mdt: Modality, image_size: Tuple[int, int]
                              ) -> Dict[Id, Landmark_2D]:
         meta_dict = cls._read_modality_meta(info, mdt)
+        result = {}
+        for item in meta_dict:
+            if mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
+                # TODO https://synthesisai.atlassian.net/browse/ENG-357
+                idd = item["name"]
+            else:
+                idd = str(item["id"])
+            x, y = item["screen_space_pos"]
+            w, h = image_size
+            result[idd] = (x * w, y * h)
 
-        df = pd.DataFrame(meta_dict)
-        if mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
-            # TODO https://synthesisai.atlassian.net/browse/ENG-357
-            df = df[["screen_space_pos", "name"]]
-            df.rename(columns={"name": "id"}, inplace=True)
-        else:
-            df = df[["screen_space_pos", "id"]]
-            df["id"] = df["id"].astype(str)
-        df.set_index("id", inplace=True)
-        df = df.sort_index()
-
-        h, w = image_size
-        df = df.assign(x=df.screen_space_pos.apply(lambda l: l[0] * w))
-        df = df.assign(y=df.screen_space_pos.apply(lambda l: l[1] * h))
-        df.drop("screen_space_pos", 1, inplace=True)
-
-        return {k: (v["x"], v["y"]) for k, v in df.to_dict('index').items()}
+        return result
 
     def _read_face_landmarks_2d(self, info: dict, mdt: Modality, number: str) -> Dict[Id, Landmark_2D]:
         meta_dict = self._read_modality_meta(info, mdt)

@@ -205,7 +205,12 @@
             "percent": 80
           }
         ]
-      }
+      },
+      "body": [
+        {
+          "enabled": true
+        }
+      ]
     },
     {
       "identities": {

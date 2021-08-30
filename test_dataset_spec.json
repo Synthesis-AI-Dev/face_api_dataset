@@ -88,7 +88,7 @@
                 "max": 1.0
               }
             },
-            "gender_matched_only": true,
+            "sex_matched_only": true,
             "ethnicity_matched_only": false,
             "percent": 100
           }
@@ -149,7 +149,7 @@
                 "type": "list",
                 "values": [0, 1]
               },
-              "gender_matched_only": true,
+              "sex_matched_only": true,
               "percent": 20
             },
             {
@@ -164,14 +164,14 @@
             "style": [
               "all"
             ],
-            "gender_matched_only": true,
+            "sex_matched_only": true,
             "percent": 20
           },
           {
             "style": [
               "none"
             ],
-            "gender_matched_only": true,
+            "sex_matched_only": true,
             "percent": 80
           }
         ],
@@ -242,7 +242,7 @@
           "outfit": [
             "work_casual_1"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }
@@ -308,7 +308,7 @@
           "outfit": [
             "work_professional_1"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }
@@ -374,7 +374,7 @@
           "outfit": [
             "sunday_bbq_1"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }
@@ -440,7 +440,7 @@
           "outfit": [
             "jeans_and_hoodie_1"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }
@@ -506,7 +506,7 @@
           "outfit": [
             "longsleeve_dress_yellow"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }
@@ -573,7 +573,7 @@
           "outfit": [
             "slingdress_white"
           ],
-          "gender_matched_only": false,
+          "sex_matched_only": false,
           "single_style_per_id": true,
           "percent": 100
         }

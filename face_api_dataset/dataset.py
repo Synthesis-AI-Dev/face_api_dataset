@@ -807,7 +807,7 @@ class FaceApiDataset(Base):
                        f"Got {n_landmarks} landmarks instead of {self.N_LANDMARKS}")
                 raise ValueError(msg)
 
-        h, w = self._image_sizes[number]
+        w, h = self._image_sizes[number]
         landmarks: Dict[Id, Landmark_2D] = {}
         for landmark in meta_dict:
             x, y = landmark["screen_space_pos"]

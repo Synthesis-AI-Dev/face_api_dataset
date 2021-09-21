@@ -213,12 +213,12 @@ class Modality(Enum):
 
 
 class _Extension(str, Enum):
-    INFO = "info.json"
-    RGB = "rgb.png"
-    NORMALS = "normals.tif"
-    DEPTH = "depth.tif"
-    ALPHA = "alpha.tif"
-    SEGMENTS = "segments.png"
+    INFO = "cam_default.f_1.info.json"
+    RGB = "cam_default.f_1.rgb.png"
+    NORMALS = "cam_default.f_1.normals.tif"
+    DEPTH = "cam_default.f_1.depth.tif"
+    ALPHA = "cam_default.f_1.alpha.tif"
+    SEGMENTS = "cam_default.f_1.segments.png"
 
 
 class OutOfFrameLandmarkStrategy(Enum):
@@ -332,6 +332,7 @@ class FaceApiDataset(Base):
         "temples": 36,
         "tongue": 37,
         "undereye": 38,
+        "eyebrows": 39
     }
     """
     Default segmentation mapping.
@@ -364,32 +365,32 @@ class FaceApiDataset(Base):
 
             root
             ├── metadata.jsonl
-                0.exr
-                0.rgb.png
-                0.info.json
-                0.segments.png
-                0.alpha.tif
-                0.depth.tif
-                0.normals.tif
-                1.exr
-                1.rgb.png
-                1.info.json
-                1.segments.png
-                1.alpha.tif
-                1.depth.tif
-                1.normals.tif
+                0.cam_default.f_1.exr
+                0.cam_default.f_1.rgb.png
+                0.cam_default.f_1.info.json
+                0.cam_default.f_1.segments.png
+                0.cam_default.f_1.alpha.tif
+                0.cam_default.f_1.depth.tif
+                0.cam_default.f_1.normals.tif
+                1.cam_default.f_1.exr
+                1.cam_default.f_1.rgb.png
+                1.cam_default.f_1.info.json
+                1.cam_default.f_1.segments.png
+                1.cam_default.f_1.alpha.tif
+                1.cam_default.f_1.depth.tif
+                1.cam_default.f_1.normals.tif
 
         No extra files are allowed, but all files which are not needed to load modalities listed may be absent.
 
         For instance, if only `RGB` and `SEGMENTS` modalities are needed the following files are enough::
 
             root
-            ├── 0.rgb.png
-                0.info.json
-                0.segments.png
-                1.rgb.png
-                1.info.json
-                1.segments.png
+            ├── 0.cam_default.f_1.rgb.png
+                0.cam_default.f_1.info.json
+                0.cam_default.f_1.segments.png
+                1.cam_default.f_1.rgb.png
+                1.cam_default.f_1.info.json
+                1.cam_default.f_1.segments.png
 
         If any of the required files are absent for at least one image, or any redundant files are located in the directory, :class:`ValueError` is raised.
 
@@ -449,7 +450,7 @@ class FaceApiDataset(Base):
                 ret[Modality.SEGMENTS] = flip(modalities[Modality.SEGMENTS])
                 return ret
 
-        :param Union[str,bytes,os.PathLike] root: Dataset root. All image files (ex. `0.rgb.png`) should be located directly in this directory.
+        :param Union[str,bytes,os.PathLike] root: Dataset root. All image files (ex. `0.cam_default.f_1.rgb.png`) should be located directly in this directory.
         :param Optional[List[Modality]] modalities: List of modalities to load. If None all the modalities are loaded.
         :param Optional[Dict[str,int]] segments: Mapping from object names to segmentation id. If `None` :attr:`SEGMENTS` mapping is used.
         :param Optional[List[str]] face_segments: List of object names considered to incorporate a face. If `None` :attr:`FACE_SEGMENTS` mapping is used.

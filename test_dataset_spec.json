@@ -229,7 +229,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "wave_hello"
           ],
           "mirrored": true,
@@ -295,7 +300,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "look_left"
           ],
           "mirrored": true,
@@ -361,7 +371,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "answer_phone_talk"
           ],
           "mirrored": true,
@@ -427,7 +442,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "air_swipe"
           ],
           "mirrored": true,
@@ -493,7 +513,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "elbow_bump"
           ],
           "mirrored": true,
@@ -560,7 +585,12 @@
           "fat_content": [
             "median"
           ],
-          "gesture": [
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
             "drink_from_cup"
           ],
           "mirrored": true,

@@ -210,7 +210,12 @@ class Modality(Enum):
     
     **Type**: `Tuple[int, int, int, int]`.
     """
-
+    HEAD_TO_CAM = auto()
+    CAM_TO_HEAD = auto()
+    HEAD_TO_WORLD = auto()
+    WORLD_TO_HEAD = auto()
+    CAM_TO_WORLD = auto()
+    WORLD_TO_CAM = auto()
 
 class _Extension(str, Enum):
     INFO = "cam_default.f_1.info.json"
@@ -263,6 +268,12 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.EXPRESSION: [_Extension.INFO],
         Modality.GAZE: [_Extension.INFO],
         Modality.FACE_BBOX: [_Extension.RGB, _Extension.INFO, _Extension.SEGMENTS],
+        Modality.CAM_TO_HEAD: [_Extension.INFO],
+        Modality.HEAD_TO_CAM: [_Extension.INFO],
+        Modality.WORLD_TO_HEAD: [_Extension.INFO],
+        Modality.HEAD_TO_WORLD: [_Extension.INFO],
+        Modality.CAM_TO_WORLD: [_Extension.INFO],
+        Modality.WORLD_TO_CAM: [_Extension.INFO]
     }[modality]
 
 
@@ -759,6 +770,24 @@ class FaceApiDataset(Base):
             expanded_face_bbox = expand_bbox(face_bbox, self._face_bbox_pad)
 
             return expanded_face_bbox
+
+        if modality == Modality.CAM_TO_WORLD:
+            return np.array(info["camera"]["transform_cam2world"]["mat_4x4"], dtype=np.float64)
+
+        if modality == Modality.WORLD_TO_CAM:
+            return np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
+
+        if modality == Modality.HEAD_TO_CAM:
+            return np.array(info["head_transform"]["transform_head2cam"]["mat_4x4"])
+
+        if modality == Modality.CAM_TO_HEAD:
+            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_CAM, number, info))
+
+        if modality == Modality.HEAD_TO_WORLD:
+            return np.array(info["head_transform"]["transform_head2world"]["mat_4x4"])
+
+        if modality == Modality.WORLD_TO_HEAD:
+            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_WORLD, number, info))
 
         raise ValueError("Unknown modality")
 

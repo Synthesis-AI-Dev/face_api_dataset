@@ -211,11 +211,42 @@ class Modality(Enum):
     **Type**: `Tuple[int, int, int, int]`.
     """
     HEAD_TO_CAM = auto()
+    """
+    Transformation matrix from the head to the camera coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
     CAM_TO_HEAD = auto()
+    """  
+    Transformation matrix from the camera to the head coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
     HEAD_TO_WORLD = auto()
+    """
+    Transformation matrix from the head to the world coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
     WORLD_TO_HEAD = auto()
+    """
+    Transformation matrix from the world to the head coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
     CAM_TO_WORLD = auto()
+    """
+    Transformation matrix from the camera to the world coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
     WORLD_TO_CAM = auto()
+    """
+    Transformation matrix from the world to the camera coordinate system.
+    
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
+
 
 class _Extension(str, Enum):
     INFO = "cam_default.f_1.info.json"

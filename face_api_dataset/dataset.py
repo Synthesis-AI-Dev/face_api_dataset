@@ -246,7 +246,12 @@ class Modality(Enum):
     
     **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
     """
+    CAM_INTRINSICS = auto()
+    """
+    Camera intrinsics matrix in OpenCV format: https://docs.opencv.org/3.4.15/dc/dbb/tutorial_py_calibration.html.
 
+    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
+    """
 
 class _Extension(str, Enum):
     INFO = "cam_default.f_1.info.json"
@@ -304,7 +309,8 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.WORLD_TO_HEAD: [_Extension.INFO],
         Modality.HEAD_TO_WORLD: [_Extension.INFO],
         Modality.CAM_TO_WORLD: [_Extension.INFO],
-        Modality.WORLD_TO_CAM: [_Extension.INFO]
+        Modality.WORLD_TO_CAM: [_Extension.INFO],
+        Modality.CAM_INTRINSICS: [_Extension.INFO]
     }[modality]
 
 
@@ -809,16 +815,19 @@ class FaceApiDataset(Base):
             return np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
 
         if modality == Modality.HEAD_TO_CAM:
-            return np.array(info["head_transform"]["transform_head2cam"]["mat_4x4"])
+            return np.array(info["head_transform"]["transform_head2cam"]["mat_4x4"], dtype=np.float64)
 
         if modality == Modality.CAM_TO_HEAD:
             return np.linalg.inv(self._open_modality(Modality.HEAD_TO_CAM, number, info))
 
         if modality == Modality.HEAD_TO_WORLD:
-            return np.array(info["head_transform"]["transform_head2world"]["mat_4x4"])
+            return np.array(info["head_transform"]["transform_head2world"]["mat_4x4"], dtype=np.float64)
 
         if modality == Modality.WORLD_TO_HEAD:
             return np.linalg.inv(self._open_modality(Modality.HEAD_TO_WORLD, number, info))
+
+        if modality == Modality.CAM_INTRINSICS:
+            return np.array(info["camera"]["intrinsics"], dtype=np.float64)
 
         raise ValueError("Unknown modality")
 

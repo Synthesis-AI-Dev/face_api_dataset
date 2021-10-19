@@ -431,6 +431,8 @@ class FaceApiDataset(Base):
         "leg_upper_right": 87,
         "foot_left": 88,
         "foot_right": 89,
+        "pupil_left": 90,
+        "pupil_right": 91,
     }
     """
     Default segmentation mapping.

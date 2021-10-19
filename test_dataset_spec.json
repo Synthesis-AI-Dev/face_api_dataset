@@ -567,77 +567,77 @@
         }
       }
     },
-    {
-      "identities": {
-        "ids": [
-          80,
-          33
-        ],
-        "renders_per_identity": 1
-      },
-      "body": [
-        {
-          "enabled": true,
-          "match_id_body_type": false,
-          "height": [
-            "median"
+      {
+        "identities": {
+          "ids": [
+            80,
+            33
           ],
-          "fat_content": [
-            "median"
-          ],
-          "percent": 100
-        }
-      ],
-      "gesture": [
-        {
-          "name": [
-            "drink_from_cup"
-          ],
-          "mirrored": true,
-          "position_seed": 1,
-          "percent": 100
-        }
-      ],
-      "clothing": [
-        {
-          "outfit": [
-            "slingdress_white"
-          ],
-          "sex_matched_only": false,
-          "single_style_per_id": true,
-          "percent": 100
-        }
-      ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
+          "renders_per_identity": 1
         },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
+        "body": [
+          {
+            "enabled": true,
+            "match_id_body_type": false,
+            "height": [
+              "median"
+            ],
+            "fat_content": [
+              "median"
+            ],
+            "percent": 100
+          }
+        ],
+        "gesture": [
+          {
+            "name": [
+              "drink_from_cup"
+            ],
+            "mirrored": true,
+            "position_seed": 1,
+            "percent": 100
+          }
+        ],
+        "clothing": [
+          {
+            "outfit": [
+              "slingdress_white"
+            ],
+            "sex_matched_only": false,
+            "single_style_per_id": true,
+            "percent": 100
+          }
+        ],
+        "camera": {
+          "location": {
+            "vertical_angle": {
+              "type": "list",
+              "values": [
+                -3
+              ]
+            },
+            "depth_meters": {
+              "type": "list",
+              "values": [
+                2
+              ]
+            },
+            "offset_vertical": {
+              "type": "list",
+              "values": [
+                -0.25
+              ]
+            }
+          },
+          "specifications": {
+            "focal_length": {
+              "type": "list",
+              "values": [
+                28
+              ]
+            }
           }
         }
       }
-    }
   ]
 }

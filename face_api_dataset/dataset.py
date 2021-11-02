@@ -255,12 +255,12 @@ class Modality(Enum):
 
 
 class _Extension(str, Enum):
-    INFO = ".info.json"
-    RGB = ".rgb.png"
-    NORMALS = ".normals.tif"
-    DEPTH = ".depth.tif"
-    ALPHA = ".alpha.tif"
-    SEGMENTS = ".segments.png"
+    INFO = "info.json"
+    RGB = "rgb.png"
+    NORMALS = "normals.tif"
+    DEPTH = "depth.tif"
+    ALPHA = "alpha.tif"
+    SEGMENTS = "segments.png"
     CAM_NAME_PREFIX = "cam_"
     FRAME_NO_PREFIX = "f_"
 
@@ -617,9 +617,9 @@ class FaceApiDataset(Base):
                 continue
             for modality in modalities:
                 for extension in _modality_files(modality):
-                    if len(list(self._root.glob(f"{number}.*{extension.value}"))) < 1:
+                    if len(list(self._root.glob(f"{number}.*.{extension.value}"))) < 1:
                         raise ValueError(
-                            f"Can't find file '{number}.*{extension.value}' "
+                            f"Can't find file '{number}.*.{extension.value}' "
                             f"required for {modality.name} modality"
                         )
             image_numbers.add(number)
@@ -678,7 +678,8 @@ class FaceApiDataset(Base):
         number = self._image_numbers[i]
         info = None
         if self._needs_info:
-            info_file = self._root / f"{number}.{_Extension.INFO}"
+            info_file = self._root / \
+                f"{_Extension.filename_prefix_for_camera_and_frame(number)}.{_Extension.INFO}"
             with info_file.open("r") as f:
                 info = json.load(f)
 
@@ -1009,7 +1010,7 @@ class FaceApiDataset(Base):
         info = None
         if self._needs_info:
             info_file = self._root / \
-                f"{_Extension.filename_prefix_for_camera_and_frame(number, camera_name, frame_no)}{_Extension.INFO}"
+                f"{_Extension.filename_prefix_for_camera_and_frame(number, camera_name, frame_no)}.{_Extension.INFO}"
             with info_file.open("r") as f:
                 info = json.load(f)
 

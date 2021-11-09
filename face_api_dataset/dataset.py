@@ -135,16 +135,20 @@ class FaceApiDataset(Base):
         "foot_right": 89,
         "pupil_left": 90,
         "pupil_right": 91,
+        "eyelashes_left": 92,
+        "eyelashes_right": 93,
+        "eyelid_left": 92,
+        "eyelid_right": 93,
     }
     """
     Default segmentation mapping.
     """
 
     FACE_SEGMENTS = ["brow", "cheek_left", "cheek_right", "chin",
-                     "eye_left", "eye_right", "eyelashes", "eyelid",
+                     "eye_left", "eye_right", "eyelid_left", "eyelid_right",
                      "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
                      "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
-                     "smile_line", "teeth", "undereye"]
+                     "smile_line", "teeth", "undereye", "eyelashes_left", "eyelashes_right"]
     "Segments included in the bounding box."
 
     N_LANDMARKS = 68
@@ -493,11 +497,14 @@ class FaceApiDataset(Base):
             segment_img, segment_mapping_int = self._read_segments(file_name, info)
 
             segment_mapping = info["segments_mapping"]
-            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in self._face_segments]
+            face_segments = set(self._face_segments) & set(segment_mapping.keys())
+            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in face_segments]
             face_mask = np.isin(segment_img, face_seg_idxs).astype(np.uint16)
 
             def get_bbox(img: np.ndarray):
                 yxs = np.where(img != 0)
+                if len(yxs) == 0:
+                    return (-1, -1, -1, -1)
                 bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
                 return bbox
 

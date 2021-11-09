@@ -185,12 +185,12 @@ class Modality(Enum):
     """
     GAZE = auto()
     """
-    Gaze angles in image space.
+    Gaze direction in camera space.
     
     **Format**::
     
-        {'horizontal_angle': float64, 
-         'vertical_angle': float64}
+        {'horizontal_angle': ndarray[float64] **Shape**: `(3,)`.
+         'vertical_angle': ndarray[float64] **Shape**: `(3,)`.}
     """
     FACE_BBOX = auto()
     """

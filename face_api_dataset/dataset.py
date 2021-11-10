@@ -2,11 +2,11 @@ import copy
 import json
 import os
 from collections import Sequence
-from enum import Enum
-from enum import auto
+from enum import Enum, auto
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Optional, List, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
+from typing import List
+from typing import Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
 
@@ -197,12 +197,12 @@ class Modality(Enum):
     """
     GAZE = auto()
     """
-    Gaze angles in image space.
+    Gaze direction in camera space.
     
     **Format**::
     
-        {'horizontal_angle': float64, 
-         'vertical_angle': float64}
+        {'horizontal_angle': ndarray[float64] **Shape**: `(3,)`.
+         'vertical_angle': ndarray[float64] **Shape**: `(3,)`.}
     """
     FACE_BBOX = auto()
     """
@@ -252,28 +252,30 @@ class Modality(Enum):
 
     **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
     """
+    CAMERA_NAME = auto()
+    """
+    Camera name consisting of lowercase alphanumeric characters. Usually used when more than one are defined in a scene.
+    Default is "cam_default".
+    
+    **Type**: `str`. 
+    """
+    FRAME_NUM = auto()
+    """
+    Frame number used for consecutive animation frames. Used for animation.
+    
+    **Type**: `int`.
+    """
+
 
 class _Extension(str, Enum):
-    INFO = "cam_default.f_1.info.json"
-    RGB = "cam_default.f_1.rgb.png"
-    NORMALS = "cam_default.f_1.normals.tif"
-    DEPTH = "cam_default.f_1.depth.tif"
-    ALPHA = "cam_default.f_1.alpha.tif"
-    SEGMENTS = "cam_default.f_1.segments.png"
-
-
-class OutOfFrameLandmarkStrategy(Enum):
-    IGNORE = "ignore"
-    CLIP = "clip"
-
-    @staticmethod
-    def clip_landmarks_(landmarks: Dict[Id, Landmark_2D], height: int, width: int) -> Dict[Id, Landmark_2D]:
-        clipped_landmarks: Dict[Id, Landmark_2D] = {}
-        for name, (x, y) in landmarks.items():
-            xx = np.clip(x, 0, width - 1)
-            yy = np.clip(y, 0, height - 1)
-            clipped_landmarks[name] = (float(xx), float(yy))
-        return clipped_landmarks
+    INFO = "info.json"
+    RGB = "rgb.png"
+    NORMALS = "normals.tif"
+    DEPTH = "depth.tif"
+    ALPHA = "alpha.tif"
+    SEGMENTS = "segments.png"
+    CAM_NAME_PREFIX = "cam_"
+    FRAME_NO_PREFIX = "f_"
 
 
 def _modality_files(modality: Modality) -> List[_Extension]:
@@ -310,7 +312,9 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.HEAD_TO_WORLD: [_Extension.INFO],
         Modality.CAM_TO_WORLD: [_Extension.INFO],
         Modality.WORLD_TO_CAM: [_Extension.INFO],
-        Modality.CAM_INTRINSICS: [_Extension.INFO]
+        Modality.CAM_INTRINSICS: [_Extension.INFO],
+        Modality.CAMERA_NAME: [_Extension.INFO],
+        Modality.FRAME_NUM: [_Extension.INFO]
     }[modality]
 
 
@@ -325,6 +329,20 @@ def _check_import(modality: Modality) -> None:
     if {_Extension.SEGMENTS, _Extension.RGB}.intersection(_modality_files(modality)):
         if find_spec("cv2") is None:
             raise ImportError(f"Module cv2 is needed to load {modality}")
+
+
+class OutOfFrameLandmarkStrategy(Enum):
+    IGNORE = "ignore"
+    CLIP = "clip"
+
+    @staticmethod
+    def clip_landmarks_(landmarks: Dict[Id, Landmark_2D], height: int, width: int) -> Dict[Id, Landmark_2D]:
+        clipped_landmarks: Dict[Id, Landmark_2D] = {}
+        for name, (x, y) in landmarks.items():
+            xx = np.clip(x, 0, width - 1)
+            yy = np.clip(y, 0, height - 1)
+            clipped_landmarks[name] = (float(xx), float(yy))
+        return clipped_landmarks
 
 
 if TYPE_CHECKING:
@@ -382,7 +400,7 @@ class FaceApiDataset(Base):
         "undereye": 38,
         "eyebrows": 89,
         "torso_lower_left": 40,
-        "torso_lower_right":41,
+        "torso_lower_right": 41,
         "torso_mid_left": 42,
         "torso_mid_right": 43,
         "torso_upper_left": 44,
@@ -433,16 +451,20 @@ class FaceApiDataset(Base):
         "foot_right": 89,
         "pupil_left": 90,
         "pupil_right": 91,
+        "eyelashes_left": 92,
+        "eyelashes_right": 93,
+        "eyelid_left": 92,
+        "eyelid_right": 93,
     }
     """
     Default segmentation mapping.
     """
 
     FACE_SEGMENTS = ["brow", "cheek_left", "cheek_right", "chin",
-                     "eye_left", "eye_right", "eyelashes", "eyelid",
+                     "eye_left", "eye_right", "eyelid_left", "eyelid_right",
                      "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
                      "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
-                     "smile_line", "teeth", "undereye"]
+                     "smile_line", "teeth", "undereye", "eyelashes_left", "eyelashes_right"]
     "Segments included in the bounding box."
 
     N_LANDMARKS = 68
@@ -574,24 +596,28 @@ class FaceApiDataset(Base):
             if _Extension.INFO in _modality_files(modality):
                 self._needs_info = True
         self._root = Path(root)
-        image_numbers = set()
+
+        image_names = set()
         for file_path in self._root.glob("*"):
             if file_path.name == "metadata.jsonl":
                 continue
-            number = file_path.name.split(".")[0]
-            if not number.isdigit():
+            file_name = ".".join(file_path.name.split(".")[:3])
+            render_id = file_name.split(".")[0]
+            if not render_id.isdigit():
                 raise ValueError(f"Unexpected file {file_path} in the dataset")
-            if number in image_numbers:
+            if file_name in image_names:
                 continue
             for modality in modalities:
                 for extension in _modality_files(modality):
-                    if not (self._root / f"{number}.{extension.value}").exists():
+                    if not (self._root / f"{file_name}.{extension.value}").exists():
                         raise ValueError(
-                            f"Can't find file '{number}.{extension.value}' "
+                            f"Can't find file '{file_name}.{extension.value}' "
                             f"required for {modality.name} modality"
                         )
-            image_numbers.add(number)
-        self._image_numbers = sorted(list(image_numbers), key=int)
+            img_name = ".".join(file_path.name.split(".")[:3])
+            image_names.add(img_name)
+
+        self._image_names = sorted(list(image_names), key=lambda n: int(n.split(".")[0]))
         self._image_sizes: Dict[str, Tuple[int, int]] = {}
         self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
         self._transform = transform
@@ -615,7 +641,7 @@ class FaceApiDataset(Base):
         return self._modalities
 
     def __len__(self) -> int:
-        return len(self._image_numbers)
+        return len(self._image_names)
 
     @overload
     def __getitem__(self, index: int) -> dict:
@@ -643,61 +669,62 @@ class FaceApiDataset(Base):
     def _get(self, i: int) -> dict:
         if i > len(self):
             raise ValueError(f"Index {i} is out of bounds")
-        number = self._image_numbers[i]
+        file_name = self._image_names[i]
         info = None
         if self._needs_info:
-            info_file = self._root / f"{number}.{_Extension.INFO}"
+            info_file = self._root / f"{file_name}.{_Extension.INFO}"
             with info_file.open("r") as f:
                 info = json.load(f)
 
         ret = {}
         for modality in self._modalities:
-            ret[modality] = self._open_modality(modality, number, info)
+            ret[modality] = self._open_modality(modality, file_name, info)
         return ret
 
     def _open_modality(
-            self, modality: Modality, number: str, info: Optional[dict]
+            self, modality: Modality, file_name: str, info: Optional[dict]
     ) -> Any:
+        render_id = int(file_name.split(".")[0])
         if modality == Modality.RENDER_ID:
-            return int(number)
+            return render_id
 
         if modality == Modality.RGB:
-            return self._read_rgb(number)
+            return self._read_rgb(file_name)
 
         if modality == Modality.SEGMENTS:
-            segment_img, _ = self._read_segments(number, info)
+            segment_img, _ = self._read_segments(file_name, info)
             return segment_img
 
         if modality == Modality.NORMALS:
             import tiffile
 
             normals_file = (
-                    self._root / f"{number}.{_modality_files(Modality.NORMALS)[0]}"
+                    self._root / f"{file_name}.{_modality_files(Modality.NORMALS)[0]}"
             )
             img = tiffile.imread(str(normals_file))
             if img is None:
                 raise ValueError(f"Error reading {normals_file}")
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[1::-1]:
+            if file_name in self._image_sizes:
+                if self._image_sizes[file_name] != img.shape[1::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={number}"
+                        f"Dimensions of different image modalities do not match for render_id={render_id}"
                     )
             else:
-                self._image_sizes[number] = img.shape[1::-1]
+                self._image_sizes[file_name] = img.shape[1::-1]
             return img
 
         if modality == Modality.ALPHA:
             import tiffile
 
-            alpha_file = self._root / f"{number}.{_modality_files(Modality.ALPHA)[0]}"
+            alpha_file = self._root / f"{file_name}.{_modality_files(Modality.ALPHA)[0]}"
             img = tiffile.imread(str(alpha_file))
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[::-1]:
+            if file_name in self._image_sizes:
+                if self._image_sizes[file_name] != img.shape[::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={number}"
+                        f"Dimensions of different image modalities do not match for render_id={render_id}"
                     )
             else:
-                self._image_sizes[number] = img.shape[::-1]
+                self._image_sizes[file_name] = img.shape[::-1]
             if img is None:
                 raise ValueError(f"Error reading {alpha_file}")
             return img
@@ -705,25 +732,25 @@ class FaceApiDataset(Base):
         if modality == Modality.DEPTH:
             import tiffile
 
-            depth_file = self._root / f"{number}.{_modality_files(Modality.DEPTH)[0]}"
+            depth_file = self._root / f"{file_name}.{_modality_files(Modality.DEPTH)[0]}"
             img = tiffile.imread(str(depth_file))
-            if number in self._image_sizes:
-                if self._image_sizes[number] != img.shape[::-1]:
+            if file_name in self._image_sizes:
+                if self._image_sizes[file_name] != img.shape[::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={number}"
+                        f"Dimensions of different image modalities do not match for render_id={file_name}"
                     )
             else:
-                self._image_sizes[number] = img.shape[::-1]
+                self._image_sizes[file_name] = img.shape[::-1]
             if img is None:
                 raise ValueError(f"Error reading {depth_file}")
             return img
 
         if modality in (Modality.LANDMARKS_IBUG68, Modality.LANDMARKS_CONTOUR_IBUG68):
-            return self._read_face_landmarks_2d(info, modality, number)
+            return self._read_face_landmarks_2d(info, modality, file_name)
 
         if modality in (Modality.LANDMARKS_KINECT_V2, Modality.LANDMARKS_COCO,
                         Modality.LANDMARKS_MEDIAPIPE, Modality.LANDMARKS_MPEG4):
-            landmark_meta = self._read_body_landmarks(info, modality, self._image_sizes[number])
+            landmark_meta = self._read_body_landmarks(info, modality, self._image_sizes[file_name])
             return landmark_meta
 
         if modality in (Modality.LANDMARKS_3D_IBUG68, Modality.LANDMARKS_3D_KINECT_V2,
@@ -743,11 +770,11 @@ class FaceApiDataset(Base):
                 info["pupil_coordinates"]["pupil_left"]["screen_space_pos"],
                 info["pupil_coordinates"]["pupil_right"]["screen_space_pos"],
             ]
-            if number not in self._image_sizes:
+            if file_name not in self._image_sizes:
                 raise ValueError(
                     "Pupils can only be loaded with at least one image modality"
                 )
-            scale = self._image_sizes[number]
+            scale = self._image_sizes[file_name]
             pupils_np = np.array(pupils, dtype=np.float64) * scale
             return {"pupil_left": tuple(pupils_np[0]),
                     "pupil_right": tuple(pupils_np[1])}
@@ -783,18 +810,21 @@ class FaceApiDataset(Base):
             return info["facial_attributes"]["gaze"]
 
         if modality == Modality.FACE_BBOX:
-            segment_img, segment_mapping_int = self._read_segments(number, info)
+            segment_img, segment_mapping_int = self._read_segments(file_name, info)
 
             segment_mapping = info["segments_mapping"]
-            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in self._face_segments]
+            face_segments = set(self._face_segments) & set(segment_mapping.keys())
+            face_seg_idxs = [segment_mapping_int[segment_mapping[s]] for s in face_segments]
             face_mask = np.isin(segment_img, face_seg_idxs).astype(np.uint16)
 
             def get_bbox(img: np.ndarray):
                 yxs = np.where(img != 0)
+                if len(yxs) == 0:
+                    return (-1, -1, -1, -1)
                 bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
                 return bbox
 
-            height, width, _ = self._read_rgb(number).shape
+            height, width, _ = self._read_rgb(file_name).shape
 
             def expand_bbox(bbox: Tuple[int, int, int, int], padding: int):
                 x0, y0, x1, y1 = bbox
@@ -820,35 +850,41 @@ class FaceApiDataset(Base):
             return np.array(info["head_transform"]["transform_head2cam"]["mat_4x4"], dtype=np.float64)
 
         if modality == Modality.CAM_TO_HEAD:
-            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_CAM, number, info))
+            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_CAM, file_name, info))
 
         if modality == Modality.HEAD_TO_WORLD:
             return np.array(info["head_transform"]["transform_head2world"]["mat_4x4"], dtype=np.float64)
 
         if modality == Modality.WORLD_TO_HEAD:
-            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_WORLD, number, info))
+            return np.linalg.inv(self._open_modality(Modality.HEAD_TO_WORLD, file_name, info))
 
         if modality == Modality.CAM_INTRINSICS:
             return np.array(info["camera"]["intrinsics"], dtype=np.float64)
 
+        if modality == Modality.CAMERA_NAME:
+            return file_name.split(".")[1]
+
+        if modality == Modality.FRAME_NUM:
+            return int(file_name.split("f_")[-1])
+
         raise ValueError("Unknown modality")
 
-    def _read_segments(self, number: str, info: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+    def _read_segments(self, file_name: str, info: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
         import cv2
 
         segments_file = (
-                self._root / f"{number}.{_modality_files(Modality.SEGMENTS)[1]}"
+                self._root / f"{file_name}.{_modality_files(Modality.SEGMENTS)[1]}"
         )
         img = cv2.imread(str(segments_file), cv2.IMREAD_UNCHANGED)
         if img is None:
             raise ValueError(f"Error reading {segments_file}")
-        if number in self._image_sizes:
-            if self._image_sizes[number] != img.shape[::-1]:
+        if file_name in self._image_sizes:
+            if self._image_sizes[file_name] != img.shape[::-1]:
                 raise ValueError(
-                    f"Dimensions of different image modalities do not match for render_id={number}"
+                    f"Dimensions of different image modalities do not match for render_id={file_name}"
                 )
         else:
-            self._image_sizes[number] = img.shape[::-1]
+            self._image_sizes[file_name] = img.shape[::-1]
 
         segment_mapping = info["segments_mapping"]
         segment_mapping_int = np.full(
@@ -863,18 +899,18 @@ class FaceApiDataset(Base):
         segment_img = segment_mapping_int[img]
         return segment_img, segment_mapping_int
 
-    def _read_rgb(self, number: str) -> np.ndarray:
+    def _read_rgb(self, file_name: str) -> np.ndarray:
         import cv2
 
-        rgb_file = self._root / f"{number}.{_modality_files(Modality.RGB)[0]}"
+        rgb_file = self._root / f"{file_name}.{_Extension.RGB}"
         img = cv2.imread(str(rgb_file), cv2.IMREAD_COLOR)
         if img is None:
             raise ValueError(f"Error reading {rgb_file}")
-        if number in self._image_sizes:
-            if self._image_sizes[number] != img.shape[1::-1]:
+        if file_name in self._image_sizes:
+            if self._image_sizes[file_name] != img.shape[1::-1]:
                 raise ValueError("Dimensions of different modalities do not match")
         else:
-            self._image_sizes[number] = img.shape[1::-1]
+            self._image_sizes[file_name] = img.shape[1::-1]
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         return img
@@ -914,9 +950,9 @@ class FaceApiDataset(Base):
 
         return result
 
-    def _read_face_landmarks_2d(self, info: dict, mdt: Modality, number: str) -> Dict[Id, Landmark_2D]:
+    def _read_face_landmarks_2d(self, info: dict, mdt: Modality, file_name: str) -> Dict[Id, Landmark_2D]:
         meta_dict = self._read_modality_meta(info, mdt)
-        if number not in self._image_sizes:
+        if file_name not in self._image_sizes:
             raise ValueError(
                 "Landmarks can only be loaded with at least one image modality"
             )
@@ -924,12 +960,12 @@ class FaceApiDataset(Base):
         if mdt is Modality.LANDMARKS_IBUG68:
             n_landmarks = len(meta_dict)
             if n_landmarks != self.N_LANDMARKS:
-                json_file = self._root / f"{number}.{_modality_files(Modality.LANDMARKS_IBUG68)[0]}"
-                msg = (f"Error reading landmarks for item with index: {number} from file: {json_file}\n",
+                json_file = self._root / f"{file_name}.{_modality_files(Modality.LANDMARKS_IBUG68)[0]}"
+                msg = (f"Error reading landmarks for item with name: {file_name} from file: {json_file}\n",
                        f"Got {n_landmarks} landmarks instead of {self.N_LANDMARKS}")
                 raise ValueError(msg)
 
-        w, h = self._image_sizes[number]
+        w, h = self._image_sizes[file_name]
         landmarks: Dict[Id, Landmark_2D] = {}
         for landmark in meta_dict:
             x, y = landmark["screen_space_pos"]

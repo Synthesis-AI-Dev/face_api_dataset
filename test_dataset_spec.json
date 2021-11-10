@@ -1,11 +1,5 @@
 {
-  "render": {
-    "resolution": {
-      "w": 512,
-      "h": 512
-    }
-  },
-  "faces": [
+  "humans": [
     {
       "identities": {
         "ids": [
@@ -134,30 +128,36 @@
       },
       "accessories": {
         "glasses": [
-            {
-              "style": [
-                "all"
-              ],
-              "lens_color": [
-                "all"
-              ],
-              "transparency": {
-                "type": "list",
-                "values": [0, 1]
-              },
-              "metalness": {
-                "type": "list",
-                "values": [0, 1]
-              },
-              "sex_matched_only": true,
-              "percent": 20
+          {
+            "style": [
+              "all"
+            ],
+            "lens_color": [
+              "all"
+            ],
+            "transparency": {
+              "type": "list",
+              "values": [
+                0,
+                1
+              ]
             },
-            {
-              "style": [
-                "none"
-              ],
-              "percent": 80
-            }
+            "metalness": {
+              "type": "list",
+              "values": [
+                0,
+                1
+              ]
+            },
+            "sex_matched_only": true,
+            "percent": 20
+          },
+          {
+            "style": [
+              "none"
+            ],
+            "percent": 80
+          }
         ],
         "headwear": [
           {
@@ -180,8 +180,12 @@
             "style": [
               "all"
             ],
-            "position": ["all"],
-            "variant": ["all"],
+            "position": [
+              "all"
+            ],
+            "variant": [
+              "all"
+            ],
             "percent": 20
           },
           {
@@ -237,7 +241,13 @@
           "name": [
             "wave_hello"
           ],
-          "position_seed": 1,
+          "mirrored": true,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
+          },
           "percent": 100
         }
       ],
@@ -251,36 +261,41 @@
           "percent": 100
         }
       ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
-        },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "list",
+                  "values": [
+                    28
+                  ]
+                }
+              }
+            }
+          ],
+          "lights": [
+            {}
+          ],
+          "location": {
+            "pitch": {
+              "type": "list",
+              "values": [
+                -3
+              ]
+            },
+            "z": {
+              "type": "list",
+              "values": [
+                2
+              ]
+            }
           }
         }
-      }
+      ]
     },
     {
       "identities": {
@@ -307,7 +322,13 @@
           "name": [
             "look_left"
           ],
-          "position_seed": 1,
+          "mirrored": true,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
+          },
           "percent": 100
         }
       ],
@@ -321,36 +342,41 @@
           "percent": 100
         }
       ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
-        },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "focal_length": {
+                  "resolution_h": 1024,
+                  "resolution_w": 1024,
+                  "type": "list",
+                  "values": [
+                    28
+                  ]
+                }
+              }
+            }
+          ],
+          "lights": [
+            {}
+          ],
+          "location": {
+            "pitch": {
+              "type": "list",
+              "values": [
+                -3
+              ]
+            },
+            "z": {
+              "type": "list",
+              "values": [
+                2
+              ]
+            }
           }
         }
-      }
+      ]
     },
     {
       "identities": {
@@ -377,7 +403,13 @@
           "name": [
             "answer_phone_talk"
           ],
-          "position_seed": 1,
+          "mirrored": true,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
+          },
           "percent": 100
         }
       ],
@@ -391,36 +423,41 @@
           "percent": 100
         }
       ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
-        },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "list",
+                  "values": [
+                    28
+                  ]
+                }
+              }
+            }
+          ],
+          "lights": [
+            {}
+          ],
+          "location": {
+            "pitch": {
+              "type": "list",
+              "values": [
+                -3
+              ]
+            },
+            "z": {
+              "type": "list",
+              "values": [
+                2
+              ]
+            }
           }
         }
-      }
+      ]
     },
     {
       "identities": {
@@ -447,7 +484,13 @@
           "name": [
             "air_swipe"
           ],
-          "position_seed": 1,
+          "mirrored": false,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
+          },
           "percent": 100
         }
       ],
@@ -461,36 +504,41 @@
           "percent": 100
         }
       ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
-        },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "list",
+                  "values": [
+                      18
+                  ]
+                }
+              }
+            }
+          ],
+          "lights": [
+            {}
+          ],
+          "location": {
+            "pitch": {
+              "type": "list",
+              "values": [
+                -3
+              ]
+            },
+            "z": {
+              "type": "list",
+              "values": [
+                2
+              ]
+            }
           }
         }
-      }
+      ]
     },
     {
       "identities": {
@@ -517,7 +565,13 @@
           "name": [
             "elbow_bump"
           ],
-          "position_seed": 1,
+          "mirrored": true,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
+          },
           "percent": 100
         }
       ],
@@ -531,107 +585,123 @@
           "percent": 100
         }
       ],
-      "camera": {
-        "location": {
-          "vertical_angle": {
-            "type": "list",
-            "values": [
-              -3
-            ]
-          },
-          "depth_meters": {
-            "type": "list",
-            "values": [
-              2
-            ]
-          },
-          "offset_vertical": {
-            "type": "list",
-            "values": [
-              -0.25
-            ]
-          }
-        },
-        "specifications": {
-          "focal_length": {
-            "type": "list",
-            "values": [
-              28
-            ]
-          }
-        }
-      }
-    },
-      {
-        "identities": {
-          "ids": [
-            80,
-            33
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "list",
+                  "values": [
+                    28
+                  ]
+                }
+              }
+            }
           ],
-          "renders_per_identity": 1
-        },
-        "body": [
-          {
-            "enabled": true,
-            "match_id_body_type": false,
-            "height": [
-              "median"
-            ],
-            "fat_content": [
-              "median"
-            ],
-            "percent": 100
-          }
-        ],
-        "gesture": [
-          {
-            "name": [
-              "drink_from_cup"
-            ],
-            "position_seed": 1,
-            "percent": 100
-          }
-        ],
-        "clothing": [
-          {
-            "outfit": [
-              "slingdress_white"
-            ],
-            "sex_matched_only": false,
-            "single_style_per_id": true,
-            "percent": 100
-          }
-        ],
-        "camera": {
+          "lights": [
+            {}
+          ],
           "location": {
-            "vertical_angle": {
+            "pitch": {
               "type": "list",
               "values": [
                 -3
               ]
             },
-            "depth_meters": {
+            "z": {
               "type": "list",
               "values": [
                 2
               ]
-            },
-            "offset_vertical": {
-              "type": "list",
-              "values": [
-                -0.25
-              ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "identities": {
+        "ids": [
+          80,
+          33
+        ],
+        "renders_per_identity": 1
+      },
+      "body": [
+        {
+          "enabled": true,
+          "match_id_body_type": false,
+          "height": [
+            "median"
+          ],
+          "fat_content": [
+            "median"
+          ],
+          "percent": 100
+        }
+      ],
+      "gesture": [
+        {
+          "name": [
+            "drink_from_cup"
+          ],
+          "mirrored": false,
+          "position_seed": {
+            "type": "list",
+            "values": [
+              1
+            ]
           },
-          "specifications": {
-            "focal_length": {
+          "percent": 100
+        }
+      ],
+      "clothing": [
+        {
+          "outfit": [
+            "slingdress_white"
+          ],
+          "sex_matched_only": false,
+          "single_style_per_id": true,
+          "percent": 100
+        }
+      ],
+      "camera_and_light_rigs": [
+        {
+          "cameras": [
+            {
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "list",
+                  "values": [
+                    28
+                  ]
+                }
+              }
+            }
+          ],
+          "lights": [
+            {}
+          ],
+          "location": {
+            "pitch": {
               "type": "list",
               "values": [
-                28
+                -3
+              ]
+            },
+            "z": {
+              "type": "list",
+              "values": [
+                2
               ]
             }
           }
         }
-      }
+      ]
+    }
   ]
 }

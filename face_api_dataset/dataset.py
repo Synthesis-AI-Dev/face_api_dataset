@@ -819,7 +819,7 @@ class FaceApiDataset(Base):
 
             def get_bbox(img: np.ndarray):
                 yxs = np.where(img != 0)
-                if len(yxs) == 0:
+                if len(yxs[0]) == 0:
                     return (-1, -1, -1, -1)
                 bbox = np.min(yxs[1]), np.min(yxs[0]), np.max(yxs[1]), np.max(yxs[0])
                 return bbox

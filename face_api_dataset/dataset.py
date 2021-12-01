@@ -1,270 +1,24 @@
 import copy
 import json
 import os
-from collections import Sequence
+from collections import OrderedDict
 from enum import Enum, auto
 from importlib.util import find_spec
 from pathlib import Path
 from typing import List
-from typing import Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
+from typing import Sequence, Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
 
 import numpy as np
+
+from face_api_dataset.modality import Modality
 
 Id = str
 Landmark_2D = Tuple[float, float]
 Landmark_3D = Tuple[float, float, float]
-
-
-class Modality(Enum):
-    """
-    Different modalities of Synthesis AI dataset.
-    All image modalities are in `[y][x][channel]` format, with axis going as follows::
-
-        ┌-----> x
-        |
-        |
-        v
-        y
-    """
-
-    RENDER_ID = auto()
-    """
-    Render ID (image number). 
-    
-    **Type**: `int`.
-    """
-    RGB = auto()
-    """
-    RGB image modality. 
-    
-    **Type**: `ndarray[uint8]`. **Channels**: `3`.
-    """
-    NORMALS = auto()
-    """
-    Normals image. All values are in [-1,1] range.
-    
-    **Type**: `ndarray[float16]`. **Channels**: 3.
-    """
-    DEPTH = auto()
-    """
-    Depth Image. All values are positive floats. Background has depth=0.
-    
-    **Type**: `ndarray[float16]`. **Channels**: 1.
-    """
-    ALPHA = auto()
-    """
-    Alpha Image. 0 - means complete transparency, 255 - solid object.
-    
-    **Type**: `ndarray[uint8]`. **Channels**: 1.
-    """
-    SEGMENTS = auto()
-    """
-    Segmentation map. Semantic of different values is defined by segments mapping.
-    
-    **Type**: `ndarray[uint16]`. **Channels**: 1.
-    """
-    LANDMARKS_IBUG68 = auto()
-    """
-    iBUG-68 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
-    Each keypoint is a 2D projection of a 3D landmark. 
-    
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
-    """
-    LANDMARKS_CONTOUR_IBUG68 = auto()
-    """
-    iBUG-68 contour landmarks. Each landmark is given by two coordinates (name, x,y) in pixels.
-    Each keypoint is defined in a similar manner to human labelers marking 2D face kepoints.
-    
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
-    """
-    LANDMARKS_KINECT_V2 = auto()
-    """
-    Kinect v2 landmarks. Each landmark by name and two coordinates (x,y) in pixels.
-
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 32 points.
-    """
-    LANDMARKS_MEDIAPIPE = auto()
-    """
-    MediaPipe pose landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
-
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 33 points.
-    """
-    LANDMARKS_COCO = auto()
-    """
-    COCO whole body landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
-
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 133 points.
-    """
-    LANDMARKS_MPEG4 = auto()
-    """
-    MPEG4 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
-
-    **Type**: `Dict[str, Tuple[float, float]`.
-    """
-    LANDMARKS_3D_IBUG68 = auto()
-    """
-    iBUG-68 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
-
-    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 68 points.
-    """
-    LANDMARKS_3D_KINECT_V2 = auto()
-    """
-    Kinect v2 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
-
-    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 32 points.
-    """
-    LANDMARKS_3D_MEDIAPIPE = auto()
-    """
-    MediaPipe pose landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
-
-    **Type**: `Dict[str, Tuple[float, float, float]]`. hould have no more than 33 points.
-    """
-    LANDMARKS_3D_COCO = auto()
-    """
-    COCO whole body landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
-
-    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 133 points.
-    """
-    LANDMARKS_3D_MPEG4 = auto()
-    """
-    MPEG4 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
-
-    **Type**: `Dict[str, Tuple[float, float, float]]`.
-    """
-    PUPILS = auto()
-    """
-    Coordinates of pupils. Each pupil is given by name and two coordinates (x,y) in pixels.
-    
-    **Type**: `Dict[str, Tuple[float, float]]`.
-    """
-    PUPILS_3D = auto()
-    """
-    Coordinates of pupils in 3D. Each pupil is given by name and three coordinates (x,y,z) in camera space.
- 
-    **Type**: `Dict[str, Tuple[float, float, float]]`.
-    """
-    IDENTITY = auto()
-    """
-    Unique ID of the person on the image.
-    
-    **Type**: `int`.
-    """
-    IDENTITY_METADATA = auto()
-    """
-    Additional metadata about the person on the image.
-    
-    **Format**::
-    
-        {'gender': 'female'|'male',
-         'age': int,
-         'weight_kg': int,
-         'height_cm': int,
-         'id': int,
-         'ethnicity': 'arab'|'asian'|'black'|'hisp'|'white'}
-    """
-    HAIR = auto()
-    """
-    Hair metadata. If no hair are present `None` is returned.
-    
-    **Format**::
-    
-        {'relative_length': float64,
-         'relative_density': float64,
-         'style': str,
-         'color_seed': float64,
-         'color': str}
-    """
-    FACIAL_HAIR = auto()
-    """
-    Facial hair metadata. If no facial hair are present `None` is returned.
-
-    **Format**::
-    
-        {'relative_length': float64,
-         'relative_density': float64,
-         'style': str,
-         'color_seed': float64,
-         'color': str}
-    """
-    EXPRESSION = auto()
-    """
-    Expression and its intensity.
-    
-    **Format**::
-    
-        {'intensity': float64, 
-        'name': str}
-    """
-    GAZE = auto()
-    """
-    Gaze direction in camera space.
-    
-    **Format**::
-    
-        {'horizontal_angle': ndarray[float64] **Shape**: `(3,)`.
-         'vertical_angle': ndarray[float64] **Shape**: `(3,)`.}
-    """
-    FACE_BBOX = auto()
-    """
-    Face bounding box in the format (left, top, right, bottom) in pixels.
-    
-    **Type**: `Tuple[int, int, int, int]`.
-    """
-    HEAD_TO_CAM = auto()
-    """
-    Transformation matrix from the head to the camera coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    CAM_TO_HEAD = auto()
-    """  
-    Transformation matrix from the camera to the head coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    HEAD_TO_WORLD = auto()
-    """
-    Transformation matrix from the head to the world coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    WORLD_TO_HEAD = auto()
-    """
-    Transformation matrix from the world to the head coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    CAM_TO_WORLD = auto()
-    """
-    Transformation matrix from the camera to the world coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    WORLD_TO_CAM = auto()
-    """
-    Transformation matrix from the world to the camera coordinate system.
-    
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    CAM_INTRINSICS = auto()
-    """
-    Camera intrinsics matrix in OpenCV format: https://docs.opencv.org/3.4.15/dc/dbb/tutorial_py_calibration.html.
-
-    **Type**: `ndarray[float32]`. **Shape**: `(4, 4)`.
-    """
-    CAMERA_NAME = auto()
-    """
-    Camera name consisting of lowercase alphanumeric characters. Usually used when more than one are defined in a scene.
-    Default is "cam_default".
-    
-    **Type**: `str`. 
-    """
-    FRAME_NUM = auto()
-    """
-    Frame number used for consecutive animation frames. Used for animation.
-    
-    **Type**: `int`.
-    """
+CAMERA = str
+Render_Id = str
+Frame_Mapping = "OrderedDict[int, str]"
+Item = Dict
 
 
 class _Extension(str, Enum):
@@ -349,6 +103,15 @@ if TYPE_CHECKING:
     Base = Sequence[dict]
 else:
     Base = Sequence
+
+
+class Grouping(Enum):
+    # TODO add docstring
+    NONE = auto()
+    SCENE = auto()
+    CAMERA = auto()
+    CAMERA_SCENE = auto()
+    SCENE_CAMERA = auto()
 
 
 class FaceApiDataset(Base):
@@ -476,6 +239,7 @@ class FaceApiDataset(Base):
             segments: Optional[Dict[str, int]] = None,
             face_segments: Optional[List[str]] = None,
             face_bbox_pad: int = 0,
+            grouping: Grouping = Grouping.NONE,
             out_of_frame_landmark_strategy: OutOfFrameLandmarkStrategy = OutOfFrameLandmarkStrategy.IGNORE,
             transform: Optional[
                 Callable[[Dict[Modality, Any]], Dict[Modality, Any]]
@@ -597,7 +361,11 @@ class FaceApiDataset(Base):
                 self._needs_info = True
         self._root = Path(root)
 
+        # self._check_grouping(grouping, modalities)
+
         image_names = set()
+        self._camera_to_render_id: OrderedDict[CAMERA, OrderedDict[Render_Id, Frame_Mapping]] = OrderedDict()
+        self._render_id_to_camera: OrderedDict[Render_Id, OrderedDict[CAMERA, Frame_Mapping]] = OrderedDict()
         for file_path in self._root.glob("*"):
             if file_path.name == "metadata.jsonl":
                 continue
@@ -605,6 +373,7 @@ class FaceApiDataset(Base):
             render_id = file_name.split(".")[0]
             if not render_id.isdigit():
                 raise ValueError(f"Unexpected file {file_path} in the dataset")
+            # self._render_ids.add(render_id)
             if file_name in image_names:
                 continue
             for modality in modalities:
@@ -614,13 +383,38 @@ class FaceApiDataset(Base):
                             f"Can't find file '{file_name}.{extension.value}' "
                             f"required for {modality.name} modality"
                         )
-            img_name = ".".join(file_path.name.split(".")[:3])
-            image_names.add(img_name)
+            image_names.add(file_name)
+            frame_num = int(file_name.split("f_")[-1])
+            camera_name = file_name.split(".")[1]
+
+            if grouping in (Grouping.CAMERA, Grouping.CAMERA_SCENE):
+                render_id_to_frames = self._camera_to_render_id.setdefault(camera_name, OrderedDict())
+                frame_to_filename = render_id_to_frames.setdefault(render_id, OrderedDict())
+                frame_to_filename[frame_num] = file_name
+            if grouping in (Grouping.SCENE, Grouping.SCENE_CAMERA):
+                camera_to_frames = self._render_id_to_camera.setdefault(render_id, OrderedDict())
+                frame_to_filename = camera_to_frames.setdefault(camera_name, OrderedDict())
+                frame_to_filename[frame_num] = file_name
 
         self._image_names = sorted(list(image_names), key=lambda n: int(n.split(".")[0]))
+        self._camera_names = list(self._camera_to_render_id.keys())
+        self._render_ids = list(self._render_id_to_camera.keys())
+        # self._cname_to_fnames: OrderedDict[str, List[str]] = camera_to_render_id
+        # self.frame_num_to_fnames: OrderedDict[str, List[str]] = frame_num_to_file_names
         self._image_sizes: Dict[str, Tuple[int, int]] = {}
         self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
         self._transform = transform
+        self._grouping = grouping
+
+    # @staticmethod
+    # def _check_grouping(grouping: Grouping, modalities: Sequence[Modality]):
+    #     grouping_to_modality = {Grouping.CAMERA_SCENE: Modality.CAMERA_NAME,
+    #                             Grouping.SCENE_CAMERA: Modality.FRAME_NUM}
+    #     modality = grouping_to_modality[grouping]
+    #     if modality not in modalities:
+    #         msg = f"Cannot group by {grouping} without {modality}." \
+    #               f"Please pass {modality} to modalities in init."
+    #         raise ValueError(msg)
 
     @property
     def segments(self) -> Dict[str, int]:
@@ -641,7 +435,12 @@ class FaceApiDataset(Base):
         return self._modalities
 
     def __len__(self) -> int:
-        return len(self._image_names)
+        len_by_group = {Grouping.NONE: len(self._image_names),
+                        Grouping.CAMERA_SCENE: len(self._camera_names),
+                        Grouping.SCENE_CAMERA: len(self._render_ids),
+                        Grouping.CAMERA: len(self._camera_names),
+                        Grouping.SCENE: len(self._render_ids)}
+        return len_by_group[self._grouping]
 
     @overload
     def __getitem__(self, index: int) -> dict:
@@ -666,10 +465,54 @@ class FaceApiDataset(Base):
             else:
                 return self._transform(self._get(i))
 
-    def _get(self, i: int) -> dict:
+    def _get(self, i: int) -> Union[Item, List[Item], Dict[str, List[Item]]]:
         if i > len(self):
             raise ValueError(f"Index {i} is out of bounds")
-        file_name = self._image_names[i]
+
+        if self._grouping is Grouping.NONE:
+            file_name = self._image_names[i]
+            item = self._get_by_file_name(file_name)
+            return item
+
+        elif self._grouping in (Grouping.CAMERA, Grouping.CAMERA_SCENE):
+            camera_name = self._camera_names[i]
+            scene_frames: OrderedDict[Render_Id, Frame_Mapping] = self._camera_to_render_id[camera_name]
+            scene_frames_item: Dict[Render_Id, List[Item]] = self._flatten_frames(scene_frames)
+
+            if self._grouping is Grouping.CAMERA:
+                flat_frames = self._extract_flat_frames(scene_frames_item)
+                return flat_frames
+            return scene_frames_item
+
+        elif self._grouping in (Grouping.SCENE, Grouping.SCENE_CAMERA):
+            render_id = self._render_ids[i]
+            camera_frames: OrderedDict[CAMERA, Frame_Mapping] = self._render_id_to_camera[render_id]
+            scene_camera_item: Dict[CAMERA, List[Item]] = self._flatten_frames(camera_frames)
+
+            if self._grouping is Grouping.SCENE:
+                flat_frames = self._extract_flat_frames(scene_camera_item)
+                return flat_frames
+            return scene_camera_item
+
+        else:
+            raise ValueError(f"Invalid grouping option {self._grouping}")
+
+    def _flatten_frames(self, item: "OrderedDict[str, OrderedDict[int, str]]") -> Dict[str, List[Item]]:
+        ret = {}
+        for key, frame2fn in item.items():
+            ret[key] = []
+            for frame_no, file_name in frame2fn.items():
+                ret[key].append(self._get_by_file_name(file_name))
+        return ret
+
+    @staticmethod
+    def _extract_flat_frames(attr_frames: Dict[str, List[Item]]) -> List[Item]:
+        flat_frames = []
+        for scene, frames in attr_frames.items():
+            flat_frames.extend(frames)
+        return flat_frames
+
+    def _get_by_file_name(self, file_name: str) -> Item:
         info = None
         if self._needs_info:
             info_file = self._root / f"{file_name}.{_Extension.INFO}"

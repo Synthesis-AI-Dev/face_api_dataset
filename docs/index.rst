@@ -14,3 +14,8 @@ face\_api\_dataset.dataset module
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: face_api_dataset.modality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

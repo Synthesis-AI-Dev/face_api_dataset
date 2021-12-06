@@ -1,12 +1,11 @@
-import copy
+import json
 import json
 import os
-from collections import OrderedDict
-from enum import Enum, auto
+from enum import Enum
 from importlib.util import find_spec
 from pathlib import Path
 from typing import List
-from typing import Sequence, Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING, Tuple
+from typing import Sequence, Optional, Any, Union, Dict, Callable, TYPE_CHECKING, Tuple
 
 import numpy as np
 
@@ -17,7 +16,7 @@ Landmark_2D = Tuple[float, float]
 Landmark_3D = Tuple[float, float, float]
 CAMERA = str
 Render_Id = str
-Frame_Mapping = "OrderedDict[int, str]"
+Frame_Mapping = "Dict[int, str]"
 Item = Dict
 
 
@@ -106,12 +105,48 @@ else:
 
 
 class Grouping(Enum):
-    # TODO add docstring
-    NONE = auto()
-    SCENE = auto()
-    CAMERA = auto()
-    CAMERA_SCENE = auto()
-    SCENE_CAMERA = auto()
+    """
+    Different modalities of grouping Synthesis AI dataset.
+    """
+
+    NONE = "NONE"
+    """
+    Each image is treated independently.
+
+    The size of the dataset is #scenes * #cameras * #frames  
+    (assuming the same number of the cameras/frames per scene).
+    Each items is a plain `Item` dict.
+    """
+    SCENE = "SCENE"
+    """
+    Frames from the same scene are grouped and can be indexed by `camera_name`.
+
+    The size of the dataset is #scenes , each element `List[Item]` 
+    is a list of frames from all cameras from the same scene.
+    """
+    CAMERA = "CAMERA"
+    """
+    Frames from the same camera are grouped and can be indexed by `frame_id`.
+
+    The size of the dataset is #cameras , each element `List[Item]` 
+    is is a list of frames from all scenes with the same camera.
+    """
+    CAMERA_SCENE = "CAMERA_SCENE"
+    """
+    Frames are groped first by camera and then by scene.
+    List of frames for a particular scene is indexed by `scene_id`.
+    
+    The size of the dataset is #cameras , each element is a `Dict[scene_id, List[Item]]`, with #scenes items,
+    where `[List[Item]` is a list of consecutive frames for given camera and scene.
+    """
+    SCENE_CAMERA = "SCENE_CAMERA"
+    """
+    Frames are groped first by scene and then by camera.
+    List of frames for a particular scene is indexed by `camera_name`.
+    
+    The size of the dataset is #scenes , each element is a `Dict[scene_id, List[Item]]` with #cameras items, 
+    where `[List[Item]` is a list of consecutive frames for given scene and camera.
+    """
 
 
 class FaceApiDataset(Base):
@@ -341,6 +376,7 @@ class FaceApiDataset(Base):
         :param Optional[Dict[str,int]] segments: Mapping from object names to segmentation id. If `None` :attr:`SEGMENTS` mapping is used.
         :param Optional[List[str]] face_segments: List of object names considered to incorporate a face. If `None` :attr:`FACE_SEGMENTS` mapping is used.
         :param int face_bbox_pad: Extra area in pixels to pad around height and width of face bounding box.
+        :param grouping: Grouping dataset items grouping mode (default Grouping.None).
         :param Optional[Callable[[Dict[Modality,Any]],Dict[Modality,Any]]] transform: Additional transforms to apply to modalities.
         """
         if segments is None:
@@ -361,11 +397,9 @@ class FaceApiDataset(Base):
                 self._needs_info = True
         self._root = Path(root)
 
-        # self._check_grouping(grouping, modalities)
-
         image_names = set()
-        self._camera_to_render_id: OrderedDict[CAMERA, OrderedDict[Render_Id, Frame_Mapping]] = OrderedDict()
-        self._render_id_to_camera: OrderedDict[Render_Id, OrderedDict[CAMERA, Frame_Mapping]] = OrderedDict()
+        self._camera_to_render_id: Dict[CAMERA, Dict[Render_Id, Frame_Mapping]] = dict()
+        self._render_id_to_camera: Dict[Render_Id, Dict[CAMERA, Frame_Mapping]] = dict()
         for file_path in self._root.glob("*"):
             if file_path.name == "metadata.jsonl":
                 continue
@@ -388,33 +422,21 @@ class FaceApiDataset(Base):
             camera_name = file_name.split(".")[1]
 
             if grouping in (Grouping.CAMERA, Grouping.CAMERA_SCENE):
-                render_id_to_frames = self._camera_to_render_id.setdefault(camera_name, OrderedDict())
-                frame_to_filename = render_id_to_frames.setdefault(render_id, OrderedDict())
+                render_id_to_frames = self._camera_to_render_id.setdefault(camera_name, dict())
+                frame_to_filename = render_id_to_frames.setdefault(render_id, dict())
                 frame_to_filename[frame_num] = file_name
             if grouping in (Grouping.SCENE, Grouping.SCENE_CAMERA):
-                camera_to_frames = self._render_id_to_camera.setdefault(render_id, OrderedDict())
-                frame_to_filename = camera_to_frames.setdefault(camera_name, OrderedDict())
+                camera_to_frames = self._render_id_to_camera.setdefault(render_id, dict())
+                frame_to_filename = camera_to_frames.setdefault(camera_name, dict())
                 frame_to_filename[frame_num] = file_name
 
         self._image_names = sorted(list(image_names), key=lambda n: int(n.split(".")[0]))
         self._camera_names = list(self._camera_to_render_id.keys())
         self._render_ids = list(self._render_id_to_camera.keys())
-        # self._cname_to_fnames: OrderedDict[str, List[str]] = camera_to_render_id
-        # self.frame_num_to_fnames: OrderedDict[str, List[str]] = frame_num_to_file_names
         self._image_sizes: Dict[str, Tuple[int, int]] = {}
         self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
         self._transform = transform
         self._grouping = grouping
-
-    # @staticmethod
-    # def _check_grouping(grouping: Grouping, modalities: Sequence[Modality]):
-    #     grouping_to_modality = {Grouping.CAMERA_SCENE: Modality.CAMERA_NAME,
-    #                             Grouping.SCENE_CAMERA: Modality.FRAME_NUM}
-    #     modality = grouping_to_modality[grouping]
-    #     if modality not in modalities:
-    #         msg = f"Cannot group by {grouping} without {modality}." \
-    #               f"Please pass {modality} to modalities in init."
-    #         raise ValueError(msg)
 
     @property
     def segments(self) -> Dict[str, int]:
@@ -442,28 +464,11 @@ class FaceApiDataset(Base):
                         Grouping.SCENE: len(self._render_ids)}
         return len_by_group[self._grouping]
 
-    @overload
-    def __getitem__(self, index: int) -> dict:
-        pass
-
-    @overload
-    def __getitem__(self, index: slice) -> "FaceApiDataset":
-        pass
-
-    def __getitem__(self, i: Union[int, slice]) -> Union[dict, "FaceApiDataset"]:
-        if isinstance(i, slice):
-            ret = copy.copy(self)
-            ret._image_numbers = self._image_numbers[i]
-            ret._image_sizes = {}
-            for key, value in self._image_sizes.items():
-                if key in ret._image_numbers:
-                    ret._image_sizes[key] = value
-            return ret
+    def __getitem__(self, i: int) -> Item:
+        if self._transform is None:
+            return self._get(i)
         else:
-            if self._transform is None:
-                return self._get(i)
-            else:
-                return self._transform(self._get(i))
+            return self._transform(self._get(i))
 
     def _get(self, i: int) -> Union[Item, List[Item], Dict[str, List[Item]]]:
         if i > len(self):
@@ -476,7 +481,7 @@ class FaceApiDataset(Base):
 
         elif self._grouping in (Grouping.CAMERA, Grouping.CAMERA_SCENE):
             camera_name = self._camera_names[i]
-            scene_frames: OrderedDict[Render_Id, Frame_Mapping] = self._camera_to_render_id[camera_name]
+            scene_frames: Dict[Render_Id, Frame_Mapping] = self._camera_to_render_id[camera_name]
             scene_frames_item: Dict[Render_Id, List[Item]] = self._flatten_frames(scene_frames)
 
             if self._grouping is Grouping.CAMERA:
@@ -486,7 +491,7 @@ class FaceApiDataset(Base):
 
         elif self._grouping in (Grouping.SCENE, Grouping.SCENE_CAMERA):
             render_id = self._render_ids[i]
-            camera_frames: OrderedDict[CAMERA, Frame_Mapping] = self._render_id_to_camera[render_id]
+            camera_frames: Dict[CAMERA, Frame_Mapping] = self._render_id_to_camera[render_id]
             scene_camera_item: Dict[CAMERA, List[Item]] = self._flatten_frames(camera_frames)
 
             if self._grouping is Grouping.SCENE:
@@ -497,11 +502,11 @@ class FaceApiDataset(Base):
         else:
             raise ValueError(f"Invalid grouping option {self._grouping}")
 
-    def _flatten_frames(self, item: "OrderedDict[str, OrderedDict[int, str]]") -> Dict[str, List[Item]]:
+    def _flatten_frames(self, item: "Dict[str, Dict[int, str]]") -> Dict[str, List[Item]]:
         ret = {}
-        for key, frame2fn in item.items():
+        for key, frame2fn in sorted(item.items()):
             ret[key] = []
-            for frame_no, file_name in frame2fn.items():
+            for frame_no, file_name in sorted(frame2fn.items()):
                 ret[key].append(self._get_by_file_name(file_name))
         return ret
 

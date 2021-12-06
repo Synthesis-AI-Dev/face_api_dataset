@@ -108,31 +108,49 @@
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">face_api_dataset.dataset.</span></span><span class="sig-name descname"><span class="pre">Grouping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.Grouping" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
+<p>Different modalities of grouping Synthesis AI dataset.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping.NONE">
-<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.NONE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'NONE'</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.NONE" title="Permalink to this definition"></a></dt>
+<dd><p>Each image is treated independently.</p>
+<p>The size of the dataset is #scenes * #cameras * #frames  
+(assuming the same number of the cameras/frames per scene).
+Each items is a plain <cite>Item</cite> dict.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping.SCENE">
-<span class="sig-name descname"><span class="pre">SCENE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.SCENE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">SCENE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SCENE'</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.SCENE" title="Permalink to this definition"></a></dt>
+<dd><p>Frames from the same scene are grouped and can be indexed by <cite>camera_name</cite>.</p>
+<p>The size of the dataset is #scenes , each element <cite>List[Item]</cite> 
+is a list of frames from all cameras from the same scene.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping.CAMERA">
-<span class="sig-name descname"><span class="pre">CAMERA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.CAMERA" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">CAMERA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'CAMERA'</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.CAMERA" title="Permalink to this definition"></a></dt>
+<dd><p>Frames from the same camera are grouped and can be indexed by <cite>frame_id</cite>.</p>
+<p>The size of the dataset is #cameras , each element <cite>List[Item]</cite> 
+is is a list of frames from all scenes with the same camera.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping.CAMERA_SCENE">
-<span class="sig-name descname"><span class="pre">CAMERA_SCENE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.CAMERA_SCENE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">CAMERA_SCENE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'CAMERA_SCENE'</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.CAMERA_SCENE" title="Permalink to this definition"></a></dt>
+<dd><p>Frames are groped first by camera and then by scene.
+List of frames for a particular scene is indexed by <cite>scene_id</cite>.</p>
+<p>The size of the dataset is #cameras , each element is a <cite>Dict[scene_id, List[Item]]</cite>, with #scenes items,
+where <cite>[List[Item]</cite> is a list of consecutive frames for given camera and scene.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.Grouping.SCENE_CAMERA">
-<span class="sig-name descname"><span class="pre">SCENE_CAMERA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.SCENE_CAMERA" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">SCENE_CAMERA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'SCENE_CAMERA'</span></em><a class="headerlink" href="#face_api_dataset.dataset.Grouping.SCENE_CAMERA" title="Permalink to this definition"></a></dt>
+<dd><p>Frames are groped first by scene and then by camera.
+List of frames for a particular scene is indexed by <cite>camera_name</cite>.</p>
+<p>The size of the dataset is #scenes , each element is a <cite>Dict[scene_id, List[Item]]</cite> with #cameras items, 
+where <cite>[List[Item]</cite> is a list of consecutive frames for given scene and camera.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -257,8 +275,8 @@ For example, to work with <cite>background</cite> (0)/<cite>face</cite> (1)/<cit
 <li><p><strong>segments</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>,</em><em>int</em><em>]</em><em>]</em>) – Mapping from object names to segmentation id. If <cite>None</cite> <a class="reference internal" href="#face_api_dataset.dataset.FaceApiDataset.SEGMENTS" title="face_api_dataset.dataset.FaceApiDataset.SEGMENTS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SEGMENTS</span></code></a> mapping is used.</p></li>
 <li><p><strong>face_segments</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – List of object names considered to incorporate a face. If <cite>None</cite> <a class="reference internal" href="#face_api_dataset.dataset.FaceApiDataset.FACE_SEGMENTS" title="face_api_dataset.dataset.FaceApiDataset.FACE_SEGMENTS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">FACE_SEGMENTS</span></code></a> mapping is used.</p></li>
 <li><p><strong>face_bbox_pad</strong> (<em>int</em>) – Extra area in pixels to pad around height and width of face bounding box.</p></li>
+<li><p><strong>grouping</strong> (<a class="reference internal" href="#face_api_dataset.dataset.Grouping" title="face_api_dataset.dataset.Grouping"><em>face_api_dataset.dataset.Grouping</em></a>) – Grouping dataset items grouping mode (default Grouping.None).</p></li>
 <li><p><strong>transform</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.modality.Modality" title="face_api_dataset.modality.Modality"><em>Modality</em></a><em>,</em><em>Any</em><em>]</em><em>]</em><em>,</em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.modality.Modality" title="face_api_dataset.modality.Modality"><em>Modality</em></a><em>,</em><em>Any</em><em>]</em><em>]</em><em>]</em>) – Additional transforms to apply to modalities.</p></li>
-<li><p><strong>grouping</strong> (<a class="reference internal" href="#face_api_dataset.dataset.Grouping" title="face_api_dataset.dataset.Grouping"><em>face_api_dataset.dataset.Grouping</em></a>) – </p></li>
 <li><p><strong>out_of_frame_landmark_strategy</strong> (<a class="reference internal" href="#face_api_dataset.dataset.OutOfFrameLandmarkStrategy" title="face_api_dataset.dataset.OutOfFrameLandmarkStrategy"><em>face_api_dataset.dataset.OutOfFrameLandmarkStrategy</em></a>) – </p></li>
 </ul>
 </dd>

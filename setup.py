@@ -13,6 +13,7 @@ setup(
         "opencv-python>=4.5.1.48",
         "imagecodecs>=2021.1.28",
         "numpy>=1.20.1",
+        "pandas==1.3.5"
     ],
     include_package_data=True,
     description="Class to access datasets by FaceAPI datasets from Synthesis AI",

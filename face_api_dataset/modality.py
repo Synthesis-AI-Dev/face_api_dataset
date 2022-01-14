@@ -12,10 +12,9 @@ class Modality(Enum):
         v
         y
     """
-    # TODO SCENE
-    RENDER_ID = auto()
+    SCENE_ID = auto()
     """
-    Render ID (image number). 
+    Scene ID (rendered scene number). 
     
     **Type**: `int`.
     """

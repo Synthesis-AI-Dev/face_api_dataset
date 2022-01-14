@@ -31,7 +31,7 @@ class _Extension(str, Enum):
 
 def _modality_files(modality: Modality) -> List[_Extension]:
     return {
-        Modality.RENDER_ID: [_Extension.INFO],
+        Modality.SCENE_ID: [_Extension.INFO],
         Modality.RGB: [_Extension.RGB],
         Modality.NORMALS: [_Extension.NORMALS],
         Modality.DEPTH: [_Extension.DEPTH],
@@ -116,22 +116,23 @@ class Grouping(Enum):
     """
     SCENE = "SCENE"
     """
-    Frames from the same scene are grouped and can be indexed by `camera_name`.
+    Items with the same scene are grouped into the list.
 
-    The size of the dataset is #scenes.
+    The size of the dataset is #scenes. Each element is a `List[Item] with the same `SCENE_ID`.
     """
     CAMERA = "CAMERA"
     """
-    Frames from the same camera are grouped and can be indexed by `frame_id`.
+    Items with the same camera are grouped into the list.
 
-    The size of the dataset is #cameras.
+    The size of the dataset is #cameras. Each element is a `List[Item] with the same `CAMERA_NAME`.
     """
     SCENE_CAMERA = "SCENE_CAMERA"
     """
-    Frames are groped first by scene and then by camera.
+    Items are grouped first by camera and then by scene.
     List of frames for a particular scene is indexed by `scene_id`.
     
-    The size of the dataset is #cameras.
+    The size of the dataset is **#scenes** * **#cameras** , 
+    each element is a `List[Item]` is a list of consecutive frames for given scene and camera.
     """
 
 
@@ -388,20 +389,20 @@ class FaceApiDataset(Base):
             if file_path.name == "metadata.jsonl":
                 continue
 
-            [render_id, camera, frame, modality_name, modality_extension] = file_path.name.split(".")
+            [scene_id, camera, frame, modality_name, modality_extension] = file_path.name.split(".")
             frame_num = int(frame.split(_Extension.FRAME_NO_PREFIX)[-1])
             cam_name = camera.split(_Extension.CAM_NAME_PREFIX)[-1]
             extension = f"{modality_name}.{modality_extension}"
-            record = {"render_id": int(render_id), "camera_name": cam_name, "frame_num": int(frame_num),
-                      "extension": extension, "file_path": str(file_path)}
+            record = {"SCENE_ID": int(scene_id), "CAMERA_NAME": cam_name, "FRAME_NUM": int(frame_num),
+                      "EXTENSION": extension, "file_path": str(file_path)}
 
-            if not render_id.isdigit():
+            if not scene_id.isdigit():
                 raise ValueError(f"Unexpected file {file_path} in the dataset")
 
             metadata_records.append(record)
             for modality in modalities:
                 for extension in _modality_files(modality):
-                    expected_file = self._root / f"{render_id}.{camera}.{frame}.{extension.value}"
+                    expected_file = self._root / f"{scene_id}.{camera}.{frame}.{extension.value}"
                     if not expected_file.exists():
                         raise ValueError(
                             f"Can't find file '{expected_file}' required for {modality.name} modality.")
@@ -409,17 +410,17 @@ class FaceApiDataset(Base):
         self._metadata = pd.DataFrame.from_records(metadata_records)
 
         if grouping is Grouping.NONE:
-            group_columns = ["render_id", "camera_name", "frame_num"]
+            group_columns = ["SCENE_ID", "CAMERA_NAME", "FRAME_NUM"]
         elif grouping is Grouping.SCENE:
-            group_columns = ["render_id"]
+            group_columns = ["SCENE_ID"]
         elif grouping is Grouping.CAMERA:
-            group_columns = ["camera_name"]
+            group_columns = ["CAMERA_NAME"]
         elif grouping is Grouping.SCENE_CAMERA:
-            group_columns = ["render_id", "camera_name"]
+            group_columns = ["SCENE_ID", "CAMERA_NAME"]
         else:
             raise ValueError(f"Invalid grouping parameter {grouping}")
 
-        self._metadata.set_index(["render_id", "camera_name", "frame_num"], inplace=True, drop=False)
+        self._metadata.set_index(["SCENE_ID", "CAMERA_NAME", "FRAME_NUM"], inplace=True, drop=False)
         self._metadata.sort_index(inplace=True)
         self._group_columns = group_columns
         self._group_meta = self._metadata.groupby(level=group_columns)
@@ -487,31 +488,29 @@ class FaceApiDataset(Base):
         if self._grouping is Grouping.NONE:
             res = self._get_item(group_idx, group_meta)
         elif self._grouping is Grouping.SCENE:
-            render_id = group_idx
+            scene_id = group_idx
             res = []
-            for cam in group_meta.camera_name.unique():
-                cam_group_meta = group_meta[group_meta.camera_name == cam]
-                for frame in group_meta.frame_num.unique():
-                    item_meta = cam_group_meta[cam_group_meta.frame_num == frame]
-                    element_idx = (render_id, cam, frame)
+            for cam in group_meta.CAMERA_NAME.unique():
+                cam_group_meta = group_meta[group_meta.CAMERA_NAME == cam]
+                for frame in group_meta.FRAME_NUM.unique():
+                    item_meta = cam_group_meta[cam_group_meta.FRAME_NUM == frame]
+                    element_idx = (scene_id, cam, frame)
                     res.append(self._get_item(element_idx, item_meta))
         elif self._grouping is Grouping.CAMERA:
             cam = group_idx
             res = []
-            for render_id in group_meta.render_id.unique():
-                # res[render_id] = {}
-                scene_group_meta = group_meta[group_meta.render_id == render_id]
-                for frame in scene_group_meta.frame_num.unique():
-                    item_meta = scene_group_meta[scene_group_meta.frame_num == frame]
-                    element_idx = (render_id, cam, frame)
-                    # res[render_id][frame] = self._get_item(element_idx, item_meta)
+            for scene_id in group_meta.SCENE_ID.unique():
+                scene_group_meta = group_meta[group_meta.SCENE_ID == scene_id]
+                for frame in scene_group_meta.FRAME_NUM.unique():
+                    item_meta = scene_group_meta[scene_group_meta.FRAME_NUM == frame]
+                    element_idx = (scene_id, cam, frame)
                     res.append(self._get_item(element_idx, item_meta))
         elif self._grouping is Grouping.SCENE_CAMERA:
-            render_id, cam = group_idx
+            scene_id, cam = group_idx
             res = []
-            for frame in group_meta.frame_num.unique():
-                item_meta = group_meta[group_meta.frame_num == frame]
-                element_idx = (render_id, cam, frame)
+            for frame in group_meta.FRAME_NUM.unique():
+                item_meta = group_meta[group_meta.FRAME_NUM == frame]
+                element_idx = (scene_id, cam, frame)
                 res.append(self._get_item(element_idx, item_meta))
         else:
             raise ValueError(f"Invalid grouping {self._grouping}.")
@@ -520,7 +519,7 @@ class FaceApiDataset(Base):
     def _get_item(self, element_idx: tuple, item_meta: pd.DataFrame) -> Item:
         info = None
         if self._needs_info:
-            info_file = Path(item_meta[item_meta.extension == _Extension.INFO].file_path.iloc[0])
+            info_file = Path(item_meta[item_meta.EXTENSION == _Extension.INFO].file_path.iloc[0])
             with info_file.open("r") as f:
                 info = json.load(f)
 
@@ -532,30 +531,30 @@ class FaceApiDataset(Base):
     def _open_modality(
             self, modality: Modality, item_meta: pd.DataFrame, element_idx: tuple, info: Optional[dict]
     ) -> Any:
-        render_id = item_meta.render_id.iloc[0]
-        if modality == Modality.RENDER_ID:
-            return render_id
+        scene_id = item_meta.SCENE_ID.iloc[0]
+        if modality == Modality.SCENE_ID:
+            return scene_id
 
         if modality == Modality.RGB:
-            file_path = item_meta[item_meta.extension == _Extension.RGB].file_path.iloc[0]
+            file_path = item_meta[item_meta.EXTENSION == _Extension.RGB].file_path.iloc[0]
             return self._read_rgb(file_path, element_idx)
 
         if modality == Modality.SEGMENTS:
-            file_path = item_meta[item_meta.extension == _Extension.SEGMENTS].file_path.iloc[0]
+            file_path = item_meta[item_meta.EXTENSION == _Extension.SEGMENTS].file_path.iloc[0]
             segment_img, _ = self._read_segments(file_path, element_idx, info)
             return segment_img
 
         if modality == Modality.NORMALS:
             import tiffile
 
-            normals_file = item_meta[item_meta.extension == _Extension.NORMALS].file_path.iloc[0]
+            normals_file = item_meta[item_meta.EXTENSION == _Extension.NORMALS].file_path.iloc[0]
             img = tiffile.imread(str(normals_file))
             if img is None:
                 raise ValueError(f"Error reading {normals_file}")
             if element_idx in self._image_sizes:
                 if self._image_sizes[element_idx] != img.shape[1::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={render_id}"
+                        f"Dimensions of different image modalities do not match for SCENE_ID={scene_id}"
                     )
             else:
                 self._image_sizes[element_idx] = img.shape[1::-1]
@@ -564,12 +563,12 @@ class FaceApiDataset(Base):
         if modality == Modality.ALPHA:
             import tiffile
 
-            alpha_file = item_meta[item_meta.extension == _Extension.ALPHA].file_path.iloc[0]
+            alpha_file = item_meta[item_meta.EXTENSION == _Extension.ALPHA].file_path.iloc[0]
             img = tiffile.imread(str(alpha_file))
             if element_idx in self._image_sizes:
                 if self._image_sizes[element_idx] != img.shape[::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={render_id}"
+                        f"Dimensions of different image modalities do not match for SCENE_ID={scene_id}"
                     )
             else:
                 self._image_sizes[element_idx] = img.shape[::-1]
@@ -580,12 +579,12 @@ class FaceApiDataset(Base):
         if modality == Modality.DEPTH:
             import tiffile
 
-            depth_file = item_meta[item_meta.extension == _Extension.DEPTH].file_path.iloc[0]
+            depth_file = item_meta[item_meta.EXTENSION == _Extension.DEPTH].file_path.iloc[0]
             img = tiffile.imread(str(depth_file))
             if element_idx in self._image_sizes:
                 if self._image_sizes[element_idx] != img.shape[::-1]:
                     raise ValueError(
-                        f"Dimensions of different image modalities do not match for render_id={render_id}"
+                        f"Dimensions of different image modalities do not match for SCENE_ID={scene_id}"
                     )
             else:
                 self._image_sizes[element_idx] = img.shape[::-1]
@@ -658,7 +657,7 @@ class FaceApiDataset(Base):
             return info["facial_attributes"]["gaze"]
 
         if modality == Modality.FACE_BBOX:
-            file_path = item_meta[item_meta.extension == _Extension.SEGMENTS].file_path.iloc[0]
+            file_path = item_meta[item_meta.EXTENSION == _Extension.SEGMENTS].file_path.iloc[0]
             segment_img, segment_mapping_int = self._read_segments(file_path, element_idx, info)
 
             segment_mapping = info["segments_mapping"]
@@ -711,10 +710,10 @@ class FaceApiDataset(Base):
             return np.array(info["camera"]["intrinsics"], dtype=np.float64)
 
         if modality == Modality.CAMERA_NAME:
-            return item_meta.camera_name.iloc[0]
+            return item_meta.CAMERA_NAME.iloc[0]
 
         if modality == Modality.FRAME_NUM:
-            return item_meta.frame_num.iloc[0]
+            return item_meta.FRAME_NUM.iloc[0]
 
         raise ValueError("Unknown modality")
 

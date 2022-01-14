@@ -8,3 +8,4 @@ pytest==6.2.5
 jupyter==1.0.0
 matplotlib==3.5.1
 albumentations==1.1.0
+plotly==5.5.0

@@ -15,6 +15,7 @@ from face_api_dataset.modality import Modality
 Id = str
 Landmark_2D = Tuple[float, float]
 Landmark_3D = Tuple[float, float, float]
+Item = dict
 
 
 class _Extension(str, Enum):
@@ -125,9 +126,9 @@ class Grouping(Enum):
 
     The size of the dataset is #cameras.
     """
-    CAMERA_SCENE = "CAMERA_SCENE"
+    SCENE_CAMERA = "SCENE_CAMERA"
     """
-    Frames are groped first by camera and then by scene.
+    Frames are groped first by scene and then by camera.
     List of frames for a particular scene is indexed by `scene_id`.
     
     The size of the dataset is #cameras.
@@ -408,14 +409,21 @@ class FaceApiDataset(Base):
         self._metadata = pd.DataFrame.from_records(metadata_records)
 
         if grouping is Grouping.NONE:
-            index_columns = ["render_id", "camera_name", "frame_num"]
+            group_columns = ["render_id", "camera_name", "frame_num"]
         elif grouping is Grouping.SCENE:
-            index_columns = ["render_id"]
+            group_columns = ["render_id"]
+        elif grouping is Grouping.CAMERA:
+            group_columns = ["camera_name"]
+        elif grouping is Grouping.SCENE_CAMERA:
+            group_columns = ["render_id", "camera_name"]
+        else:
+            raise ValueError(f"Invalid grouping parameter {grouping}")
 
-        self._metadata.set_index(index_columns, inplace=True)
+        self._metadata.set_index(["render_id", "camera_name", "frame_num"], inplace=True, drop=False)
         self._metadata.sort_index(inplace=True)
-        self._group_meta = self._metadata.groupby(level=index_columns)
-        self._group_index = list(self._group_meta.indices.keys())
+        self._group_columns = group_columns
+        self._group_meta = self._metadata.groupby(level=group_columns)
+        self._group_index: List[tuple] = list(self._group_meta.indices.keys())
 
         self._image_sizes: Dict[tuple, Tuple[int, int]] = {}
         self._out_of_frame_landmark_strategy = out_of_frame_landmark_strategy
@@ -465,55 +473,58 @@ class FaceApiDataset(Base):
             else:
                 return self._transform(self._get(i))
 
-    def _get(self, i: int) -> dict:
+    def get_group_index(self) -> pd.DataFrame:
+        if self._grouping is self._grouping.NONE:
+            raise ValueError("Group index is unavailable when groping is set to Grouping.NONE")
+        return pd.DataFrame(self._group_index, columns=self._group_columns)
+
+    def _get(self, i: int) -> Union[Item, List[Item]]:
         if i > len(self):
             raise ValueError(f"Index {i} is out of bounds")
         group_idx = self._group_index[i]
         group_meta: pd.DataFrame = self._group_meta.get_group(group_idx)
 
         if self._grouping is Grouping.NONE:
-            return self._get_item(group_idx, group_meta)
+            res = self._get_item(group_idx, group_meta)
         elif self._grouping is Grouping.SCENE:
             render_id = group_idx
-            res = {}
+            res = []
             for cam in group_meta.camera_name.unique():
-                res[cam] = {}
                 cam_group_meta = group_meta[group_meta.camera_name == cam]
                 for frame in group_meta.frame_num.unique():
                     item_meta = cam_group_meta[cam_group_meta.frame_num == frame]
                     element_idx = (render_id, cam, frame)
-                    res[cam][frame] = self._get_item(element_idx, item_meta)
-            return res
+                    res.append(self._get_item(element_idx, item_meta))
         elif self._grouping is Grouping.CAMERA:
             cam = group_idx
-            res = {}
+            res = []
             for render_id in group_meta.render_id.unique():
-                res[render_id] = {}
+                # res[render_id] = {}
                 scene_group_meta = group_meta[group_meta.render_id == render_id]
-                for frame in group_meta.frame_num.unique():
+                for frame in scene_group_meta.frame_num.unique():
                     item_meta = scene_group_meta[scene_group_meta.frame_num == frame]
                     element_idx = (render_id, cam, frame)
-                    res[cam][frame] = self._get_item(element_idx, item_meta)
+                    # res[render_id][frame] = self._get_item(element_idx, item_meta)
+                    res.append(self._get_item(element_idx, item_meta))
         elif self._grouping is Grouping.SCENE_CAMERA:
             render_id, cam = group_idx
-            res = {}
+            res = []
             for frame in group_meta.frame_num.unique():
                 item_meta = group_meta[group_meta.frame_num == frame]
                 element_idx = (render_id, cam, frame)
-                res[frame] = self._get_item(element_idx, item_meta)
-            return res
+                res.append(self._get_item(element_idx, item_meta))
         else:
             raise ValueError(f"Invalid grouping {self._grouping}.")
+        return res
 
-    def _get_item(self, element_idx: tuple, item_meta: pd.DataFrame) -> dict:
+    def _get_item(self, element_idx: tuple, item_meta: pd.DataFrame) -> Item:
         info = None
         if self._needs_info:
             info_file = Path(item_meta[item_meta.extension == _Extension.INFO].file_path.iloc[0])
             with info_file.open("r") as f:
                 info = json.load(f)
 
-        item_meta.reset_index(inplace=True)  # TODO
-        ret = {}
+        ret: Item = {}
         for modality in self._modalities:
             ret[modality] = self._open_modality(modality, item_meta, element_idx, info)
         return ret
@@ -700,10 +711,10 @@ class FaceApiDataset(Base):
             return np.array(info["camera"]["intrinsics"], dtype=np.float64)
 
         if modality == Modality.CAMERA_NAME:
-            return item_meta.camera_name[0]
+            return item_meta.camera_name.iloc[0]
 
         if modality == Modality.FRAME_NUM:
-            return item_meta.frame_num[0]
+            return item_meta.frame_num.iloc[0]
 
         raise ValueError("Unknown modality")
 

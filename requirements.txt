@@ -9,3 +9,4 @@ jupyter==1.0.0
 matplotlib==3.5.1
 albumentations==1.1.0
 plotly==5.5.0
+sphinx-rtd-theme==1.0.0

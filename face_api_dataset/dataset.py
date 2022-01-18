@@ -240,6 +240,13 @@ class FaceApiDataset(Base):
         "eyelashes_right": 93,
         "eyelid_left": 92,
         "eyelid_right": 93,
+        "eyebrow_left": 94,
+        "eyebrow_right": 95,
+        "glasses_frame": 96,
+        "glasses_lens_left": 97,
+        "glasses_lens_right": 98,
+        "undereye_left": 99,
+        "undereye_right": 100,
     }
     """
     Default segmentation mapping.

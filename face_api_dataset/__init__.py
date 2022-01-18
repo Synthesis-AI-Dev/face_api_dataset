@@ -1,2 +1,2 @@
-from .dataset import FaceApiDataset
-from .dataset import Modality
+from .dataset import FaceApiDataset, Grouping
+from .modality import Modality

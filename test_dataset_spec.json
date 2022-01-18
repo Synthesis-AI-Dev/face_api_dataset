@@ -265,6 +265,7 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
                 "resolution_h": 1024,
                 "resolution_w": 1024,
@@ -273,6 +274,20 @@
                   "values": [
                     28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }
@@ -346,14 +361,29 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
                 "focal_length": {
-                  "resolution_h": 1024,
-                  "resolution_w": 1024,
                   "type": "list",
                   "values": [
                     28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }
@@ -427,6 +457,7 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
                 "resolution_h": 1024,
                 "resolution_w": 1024,
@@ -435,6 +466,20 @@
                   "values": [
                     28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }
@@ -508,14 +553,29 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
                 "resolution_h": 1024,
                 "resolution_w": 1024,
                 "focal_length": {
                   "type": "list",
                   "values": [
-                      18
+                    28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }
@@ -565,6 +625,7 @@
           "name": [
             "elbow_bump"
           ],
+          "keyframe_only": false,
           "mirrored": true,
           "position_seed": {
             "type": "list",
@@ -589,6 +650,7 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
                 "resolution_h": 1024,
                 "resolution_w": 1024,
@@ -597,6 +659,20 @@
                   "values": [
                     28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }
@@ -647,6 +723,7 @@
           "name": [
             "drink_from_cup"
           ],
+          "keyframe_only": false,
           "mirrored": false,
           "position_seed": {
             "type": "list",
@@ -671,6 +748,7 @@
         {
           "cameras": [
             {
+              "name": "away",
               "specifications": {
                 "resolution_h": 1024,
                 "resolution_w": 1024,
@@ -679,6 +757,20 @@
                   "values": [
                     28
                   ]
+                }
+              }
+            },
+            {
+              "name": "close",
+              "specifications": {
+                "resolution_h": 1024,
+                "resolution_w": 1024,
+                "focal_length": {
+                  "type": "range",
+                  "values": {
+                    "min": 100,
+                    "max": 100
+                  }
                 }
               }
             }

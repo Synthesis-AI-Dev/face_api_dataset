@@ -240,6 +240,13 @@ class FaceApiDataset(Base):
         "eyelashes_right": 93,
         "eyelid_left": 92,
         "eyelid_right": 93,
+        "eyebrow_left": 94,
+        "eyebrow_right": 95,
+        "glasses_frame": 96,
+        "glasses_lens_left": 97,
+        "glasses_lens_right": 98,
+        "undereye_left": 99,
+        "undereye_right": 100,
     }
     """
     Default segmentation mapping.
@@ -249,7 +256,8 @@ class FaceApiDataset(Base):
                      "eye_left", "eye_right", "eyelid_left", "eyelid_right",
                      "eyes", "jaw", "jowl", "lip_lower", "lip_upper",
                      "mouth", "mouthbag", "nose", "nose_outer", "nostrils",
-                     "smile_line", "teeth", "undereye", "eyelashes_left", "eyelashes_right"]
+                     "smile_line", "teeth", "undereye", "eyelashes_left", "eyelashes_right",
+                     "eyebrow_left", "eyebrow_right", "undereye_left", "undereye_right"]
     "Segments included in the bounding box."
 
     N_LANDMARKS = 68

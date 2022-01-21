@@ -394,7 +394,7 @@ class FaceApiDataset(Base):
 
         metadata_records = []
         for file_path in self._root.glob("*"):
-            if file_path.name == "metadata.jsonl":
+            if file_path.name == "metadata.jsonl" or file_path.suffix == ".exr":
                 continue
 
             [scene_id, camera, frame, modality_name, modality_extension] = file_path.name.split(".")

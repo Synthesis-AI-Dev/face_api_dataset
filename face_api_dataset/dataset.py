@@ -9,10 +9,12 @@ from typing import Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+from pkg_resources import parse_version
+from pdb import set_trace
 
 from face_api_dataset.modality import Modality
 
-Id = str
+Id = int
 Landmark_2D = Tuple[float, float]
 Landmark_3D = Tuple[float, float, float]
 Item = dict
@@ -393,11 +395,18 @@ class FaceApiDataset(Base):
         self._grouping = grouping
 
         metadata_records = []
+        version_checked = False
         for file_path in self._root.glob("*"):
             if file_path.name == "metadata.jsonl" or file_path.suffix == ".exr":
-                continue
-
-            [scene_id, camera, frame, modality_name, modality_extension] = file_path.name.split(".")
+                continue            
+            [scene_id, camera, frame, modality_name, modality_extension] = file_path.name.split(".")           
+            if not version_checked and modality_name == "info":
+                with open(file_path,"r") as f:
+                    info = json.load(f)
+                dataset_version = info['version']
+                if parse_version(dataset_version) < parse_version("1.4"):
+                    raise ValueError(f"The version of this dataset is {dataset_version} which is not compatible with current face_api_dataset version. You could use an earlier version of face_api_dataset(<=1.0.4).")
+                version_checked = True    
             frame_num = int(frame.split(_Extension.FRAME_NO_PREFIX)[-1])
             cam_name = camera.split(_Extension.CAM_NAME_PREFIX)[-1]
             extension = f"{modality_name}.{modality_extension}"
@@ -792,14 +801,10 @@ class FaceApiDataset(Base):
         meta_dict = cls._read_modality_meta(info, mdt)
         result = {}
         for item in meta_dict:
-            if mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
-                # TODO https://synthesisai.atlassian.net/browse/ENG-357
-                idd = item["name"]
-            else:
-                idd = str(item["id"])
+            idd = item["id"]
             x, y = item["screen_space_pos"]
             w, h = image_size
-            result[idd] = (x * w, y * h)
+            result[int(idd)] = (x * w, y * h)
 
         return result
 
@@ -808,8 +813,9 @@ class FaceApiDataset(Base):
             raise ValueError(
                 "Landmarks can only be loaded with at least one image modality"
             )
+        #set_trace()
         meta_dict = self._read_modality_meta(info, mdt)
-
+          
         if mdt is Modality.LANDMARKS_IBUG68:
             n_landmarks = len(meta_dict)
             if n_landmarks != self.N_LANDMARKS:
@@ -818,10 +824,11 @@ class FaceApiDataset(Base):
 
         w, h = self._image_sizes[element_idx]
         landmarks: Dict[Id, Landmark_2D] = {}
+        
         for landmark in meta_dict:
             x, y = landmark["screen_space_pos"]
             x, y = x * w, y * h
-            landmarks[str(landmark["ptnum"])] = (x, y)
+            landmarks[int(landmark["id"])] = (x, y)
 
         if self._out_of_frame_landmark_strategy is OutOfFrameLandmarkStrategy.CLIP:
             landmarks = OutOfFrameLandmarkStrategy.clip_landmarks_(landmarks, h, w)
@@ -830,15 +837,10 @@ class FaceApiDataset(Base):
     @classmethod
     def _read_landmarks_3d(cls, info: dict, mdt: Modality) -> Dict[Id, Landmark_3D]:
         meta_dict = cls._read_modality_meta(info, mdt)
-
         landmarks: Dict[Id, Landmark_3D] = {}
+        
         for landmark in meta_dict:
-            if mdt is Modality.LANDMARKS_3D_IBUG68:
-                lmk_name = str(landmark["ptnum"])
-            elif mdt is Modality.LANDMARKS_3D_MPEG4:  # TODO https://synthesisai.atlassian.net/browse/ENG-357
-                lmk_name = landmark["name"]
-            else:
-                lmk_name = str(landmark["id"])
-            landmarks[lmk_name] = tuple(landmark["camera_space_pos"])
+            lmk_name = landmark["id"]            
+            landmarks[int(lmk_name)] = tuple(landmark["camera_space_pos"])
 
         return landmarks

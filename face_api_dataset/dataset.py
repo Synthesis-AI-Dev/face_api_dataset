@@ -392,6 +392,8 @@ class FaceApiDataset(Base):
             if _Extension.INFO in _modality_files(modality):
                 self._needs_info = True
         self._root = Path(root)
+        if not (self._root.exists() and self._root.is_dir() and len(os.listdir(root)) > 0) :
+            raise ValueError(f"{root} directory either doesn't exist or is not a directory or doesn't have files")
         self._grouping = grouping
 
         metadata_records = []

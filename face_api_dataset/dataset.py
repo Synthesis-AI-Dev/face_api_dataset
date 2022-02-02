@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from pkg_resources import parse_version
 from pdb import set_trace
-from scipy.spatial.transform.rotation import Rotation
+
 
 from face_api_dataset.modality import Modality
 
@@ -849,13 +849,36 @@ class FaceApiDataset(Base):
         return landmarks
     
     @classmethod
-    def get_euler_angles(cls, matrix:np.ndarray, order:str, degrees:bool) -> np.ndarray:    
+    def get_euler_angles(cls, matrix:np.ndarray, order:str, degrees:bool) -> np.ndarray:  
+        """
+        Euler angles by matrix 4x4. 
+        
+        :param np.ndarray matrix:  matrix 4x4.
+        :param str order:  axes order ('xyz','yzx','zxy').
+        :param bool degrees:  whether use degrees or radians.        
+        
+        """
+        from scipy.spatial.transform.rotation import Rotation
         return Rotation.from_matrix(matrix[:3,:3]).as_euler(order, degrees=degrees)
     
     @classmethod
     def get_quaternion(cls, matrix:np.ndarray)-> np.ndarray:
+        """
+        Quaternion by matrix 4x4. 
+        
+        :param np.ndarray matrix:  matrix 4x4         
+        
+        """
+        from scipy.spatial.transform.rotation import Rotation
         return Rotation.from_matrix(matrix[:3,:3]).as_quat()
     
     @classmethod
     def get_shift(cls, matrix:np.ndarray)-> np.ndarray:
+        """
+        Return shift vector by matrix 4x4 which contains both rotation and shift. 
+        
+        :param np.ndarray matrix:  matrix 4x4         
+        
+        """
+        from scipy.spatial.transform.rotation import Rotation
         return matrix[:3,3]

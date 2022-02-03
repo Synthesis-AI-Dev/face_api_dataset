@@ -53,56 +53,56 @@ class Modality(Enum):
     iBUG-68 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
     Each keypoint is a 2D projection of a 3D landmark. 
     
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
+    **Type**: `Dict[int, Tuple[float, float]`. Should have no more than 68 points.
     """
     LANDMARKS_CONTOUR_IBUG68 = auto()
     """
     iBUG-68 contour landmarks. Each landmark is given by two coordinates (name, x,y) in pixels.
     Each keypoint is defined in a similar manner to human labelers marking 2D face kepoints.
     
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 68 points.
+    **Type**: `Dict[int, Tuple[float, float]`. Should have no more than 68 points.
     """
     LANDMARKS_KINECT_V2 = auto()
     """
     Kinect v2 landmarks. Each landmark by name and two coordinates (x,y) in pixels.
 
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 32 points.
+    **Type**: `Dict[int, Tuple[float, float]`. Should have no more than 32 points.
     """
     LANDMARKS_MEDIAPIPE = auto()
     """
     MediaPipe pose landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 33 points.
+    **Type**: `Dict[int, Tuple[float, float]`. Should have no more than 33 points.
     """
     LANDMARKS_COCO = auto()
     """
     COCO whole body landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `Dict[str, Tuple[float, float]`. Should have no more than 133 points.
+    **Type**: `Dict[int, Tuple[float, float]`. Should have no more than 133 points.
     """
     LANDMARKS_MPEG4 = auto()
     """
     MPEG4 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 
-    **Type**: `Dict[str, Tuple[float, float]`.
+    **Type**: `Dict[int, Tuple[float, float]`.
     """
     LANDMARKS_3D_IBUG68 = auto()
     """
     iBUG-68 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
 
-    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 68 points.
+    **Type**: `Dict[int, Tuple[float, float, float]]`. Should have no more than 68 points.
     """
     LANDMARKS_3D_KINECT_V2 = auto()
     """
     Kinect v2 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
 
-    **Type**: `Dict[str, Tuple[float, float, float]]`. Should have no more than 32 points.
+    **Type**: `Dict[int, Tuple[float, float, float]]`. Should have no more than 32 points.
     """
     LANDMARKS_3D_MEDIAPIPE = auto()
     """
     MediaPipe pose landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
 
-    **Type**: `Dict[str, Tuple[float, float, float]]`. hould have no more than 33 points.
+    **Type**: `Dict[int, Tuple[float, float, float]]`. hould have no more than 33 points.
     """
     LANDMARKS_3D_COCO = auto()
     """
@@ -114,7 +114,7 @@ class Modality(Enum):
     """
     MPEG4 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
 
-    **Type**: `Dict[str, Tuple[float, float, float]]`.
+    **Type**: `Dict[int, Tuple[float, float, float]]`.
     """
     PUPILS = auto()
     """
@@ -250,3 +250,17 @@ class Modality(Enum):
     
     **Type**: `int`.
     """
+    LANDMARKS_DENSE_MEDIAPIPE = auto()
+    """
+    MediaPipe dense landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[int, Tuple[float, float, float]]`. hould have no more than TODO points.
+    """
+    
+    LANDMARKS_DENSE_SAI = auto()
+    """
+    SAI dense landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.
+
+    **Type**: `Dict[int, Tuple[float, float, float]]`. hould have no more than TODO points.
+    """
+    

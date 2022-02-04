@@ -11,9 +11,9 @@ setup(
     install_requires=[
         "tiffile>=2018.10.18",
         "opencv-python>=4.5.1.48",
-        "imagecodecs>=2021.1.28",
-        "numpy>=1.20.1",
-        "pandas>=1.3.5"
+        "imagecodecs>=2020.5.30",
+        "numpy>=1.19.5",
+        "pandas>=0.22.0"
     ],
     include_package_data=True,
     description="Class to access datasets by FaceAPI datasets from Synthesis AI",

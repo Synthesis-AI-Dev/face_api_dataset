@@ -740,16 +740,18 @@ class FaceApiDataset(Base):
             return item_meta.FRAME_NUM.iloc[0]
         
         if modality == Modality.LANDMARKS_DENSE_MEDIAPIPE:
+            m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
             file_path = item_meta[item_meta.EXTENSION == _Extension.MEDIAPIPE_DENSE_OBJ].file_path.iloc[0]
-            return self._read_obj(file_path)
+            return self._read_obj(file_path, m)
         
         if modality == Modality.LANDMARKS_DENSE_SAI:
+            m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
             file_path = item_meta[item_meta.EXTENSION == _Extension.SAI_DENSE_OBJ].file_path.iloc[0]
-            return self._read_obj(file_path)
+            return self._read_obj(file_path, m)
 
         raise ValueError("Unknown modality")
         
-    def _read_obj(self, obj_file:str):
+    def _read_obj(self, obj_file:str, world_to_cam:np.ndarray):
         with open(obj_file, 'r') as f:
             lines = f.readlines()
             result = np.empty((0,3))
@@ -757,7 +759,9 @@ class FaceApiDataset(Base):
                 if line.startswith("v "):            
                     _,x,y,z = line.split()
                     x,y,z = float(x), float(y), float(z)
-                    result=np.vstack((result, [x,y,z]))         
+                    result=np.vstack((result, [x,y,z]))      
+       
+        result = np.tensordot(result, world_to_cam[:3,:3], axes=(-1,1)) + world_to_cam[:3,3]
         return result
 
     def _read_segments(self, segments_file: str, element_idx: tuple, info: Dict[str, Any]

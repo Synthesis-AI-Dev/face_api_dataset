@@ -603,15 +603,15 @@ Default is “cam_default”.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_DENSE_MEDIAPIPE">
 <span class="sig-name descname"><span class="pre">LANDMARKS_DENSE_MEDIAPIPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">36</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_DENSE_MEDIAPIPE" title="Permalink to this definition"></a></dt>
-<dd><p>MediaPipe dense landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>. hould have no more than TODO points.</p>
+<dd><p>MediaPipe dense landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.</p>
+<p><strong>Type</strong>: <cite>ndarray[float32]</cite>. <strong>Shape</strong>: <cite>(468, 3)</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_DENSE_SAI">
 <span class="sig-name descname"><span class="pre">LANDMARKS_DENSE_SAI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">37</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_DENSE_SAI" title="Permalink to this definition"></a></dt>
-<dd><p>SAI dense landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>. hould have no more than TODO points.</p>
+<dd><p>SAI dense landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.</p>
+<p><strong>Type</strong>: <cite>ndarray[float32]</cite>. <strong>Shape</strong>: <cite>(4840, 3)</cite>.</p>
 </dd></dl>
 
 </dd></dl>

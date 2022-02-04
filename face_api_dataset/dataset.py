@@ -18,7 +18,6 @@ from face_api_dataset.modality import Modality
 Id = int
 Landmark_2D = Tuple[float, float]
 Landmark_3D = Tuple[float, float, float]
-
 Item = dict
 
 
@@ -31,8 +30,6 @@ class _Extension(str, Enum):
     SEGMENTS = "segments.png"
     CAM_NAME_PREFIX = "cam_"
     FRAME_NO_PREFIX = "f_"
-    MEDIAPIPE_DENSE_OBJ = "mediapipe_dense.obj"
-    SAI_DENSE_OBJ = "sai_dense.obj"
 
 
 def _modality_files(modality: Modality) -> List[_Extension]:
@@ -71,9 +68,7 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.WORLD_TO_CAM: [_Extension.INFO],
         Modality.CAM_INTRINSICS: [_Extension.INFO],
         Modality.CAMERA_NAME: [_Extension.INFO],
-        Modality.FRAME_NUM: [_Extension.INFO],
-        Modality.LANDMARKS_DENSE_MEDIAPIPE: [_Extension.MEDIAPIPE_DENSE_OBJ],
-        Modality.LANDMARKS_DENSE_SAI: [_Extension.SAI_DENSE_OBJ]
+        Modality.FRAME_NUM: [_Extension.INFO]
     }[modality]
 
 
@@ -739,31 +734,8 @@ class FaceApiDataset(Base):
 
         if modality == Modality.FRAME_NUM:
             return item_meta.FRAME_NUM.iloc[0]
-        
-        if modality == Modality.LANDMARKS_DENSE_MEDIAPIPE:
-            m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
-            file_path = item_meta[item_meta.EXTENSION == _Extension.MEDIAPIPE_DENSE_OBJ].file_path.iloc[0]
-            return self._read_obj(file_path, m)
-        
-        if modality == Modality.LANDMARKS_DENSE_SAI:
-            m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
-            file_path = item_meta[item_meta.EXTENSION == _Extension.SAI_DENSE_OBJ].file_path.iloc[0]
-            return self._read_obj(file_path, m)
 
         raise ValueError("Unknown modality")
-        
-    def _read_obj(self, obj_file:str, world_to_cam:np.ndarray):
-        with open(obj_file, 'r') as f:
-            lines = f.readlines()
-            result = np.empty((0,3))
-            for line in lines:
-                if line.startswith("v "):            
-                    _,x,y,z = line.split()
-                    x,y,z = float(x), float(y), float(z)
-                    result=np.vstack((result, [x,y,z]))      
-       
-        result = np.tensordot(result, world_to_cam[:3,:3], axes=(-1,1)) + world_to_cam[:3,3]
-        return result
 
     def _read_segments(self, segments_file: str, element_idx: tuple, info: Dict[str, Any]
                        ) -> Tuple[np.ndarray, np.ndarray]:
@@ -809,19 +781,19 @@ class FaceApiDataset(Base):
         return img
 
     @staticmethod
-    def _read_modality_meta(info: dict, mdt: Modality) -> dict:       
-        if mdt in (Modality.LANDMARKS_IBUG68, Modality.LANDMARKS_3D_IBUG68):            
-            meta_dict = info["landmarks"]["ibug68"]
+    def _read_modality_meta(info: dict, mdt: Modality) -> dict:
+        if mdt in (Modality.LANDMARKS_IBUG68, Modality.LANDMARKS_3D_IBUG68):
+            meta_dict = info["landmarks"]
         elif mdt is Modality.LANDMARKS_CONTOUR_IBUG68:
-            meta_dict = info["landmarks"]['ibug68_contour']
+            meta_dict = info["contour_landmarks"]
         elif mdt in (Modality.LANDMARKS_COCO, Modality.LANDMARKS_3D_COCO):
-            meta_dict = info["landmarks"]["coco"]["whole_body"]
+            meta_dict = info["body_landmarks"]["coco"]["whole_body"]
         elif mdt in (Modality.LANDMARKS_KINECT_V2, Modality.LANDMARKS_3D_KINECT_V2):
-            meta_dict = info["landmarks"]["kinect_v2"]
+            meta_dict = info["body_landmarks"]["kinect_v2"]
         elif mdt in (Modality.LANDMARKS_MEDIAPIPE, Modality.LANDMARKS_3D_MEDIAPIPE):
-            meta_dict = info["landmarks"]["mediapipe"]["body"]
+            meta_dict = info["body_landmarks"]["mediapipe"]["body"]
         elif mdt in (Modality.LANDMARKS_MPEG4, Modality.LANDMARKS_3D_MPEG4):
-            meta_dict = info["landmarks"]["mpeg4"]
+            meta_dict = info["body_landmarks"]["mpeg4"]
         else:
             raise ValueError(f"Unrecognized modality for 3D landmarks {mdt}.")
         return meta_dict
@@ -831,7 +803,6 @@ class FaceApiDataset(Base):
                              ) -> Dict[Id, Landmark_2D]:
         meta_dict = cls._read_modality_meta(info, mdt)
         result = {}
-       
         for item in meta_dict:
             idd = item["id"]
             x, y = item["screen_space_pos"]
@@ -845,7 +816,7 @@ class FaceApiDataset(Base):
             raise ValueError(
                 "Landmarks can only be loaded with at least one image modality"
             )
-       
+        #set_trace()
         meta_dict = self._read_modality_meta(info, mdt)
           
         if mdt is Modality.LANDMARKS_IBUG68:

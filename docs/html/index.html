@@ -415,7 +415,7 @@ y
 <span class="sig-name descname"><span class="pre">LANDMARKS_IBUG68</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_IBUG68" title="Permalink to this definition"></a></dt>
 <dd><p>iBUG-68 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.
 Each keypoint is a 2D projection of a 3D landmark.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>. Should have no more than 68 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>. Should have no more than 68 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -423,56 +423,56 @@ Each keypoint is a 2D projection of a 3D landmark.</p>
 <span class="sig-name descname"><span class="pre">LANDMARKS_CONTOUR_IBUG68</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_CONTOUR_IBUG68" title="Permalink to this definition"></a></dt>
 <dd><p>iBUG-68 contour landmarks. Each landmark is given by two coordinates (name, x,y) in pixels.
 Each keypoint is defined in a similar manner to human labelers marking 2D face kepoints.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>. Should have no more than 68 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>. Should have no more than 68 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_KINECT_V2">
 <span class="sig-name descname"><span class="pre">LANDMARKS_KINECT_V2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_KINECT_V2" title="Permalink to this definition"></a></dt>
 <dd><p>Kinect v2 landmarks. Each landmark by name and two coordinates (x,y) in pixels.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>. Should have no more than 32 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>. Should have no more than 32 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_MEDIAPIPE">
 <span class="sig-name descname"><span class="pre">LANDMARKS_MEDIAPIPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_MEDIAPIPE" title="Permalink to this definition"></a></dt>
 <dd><p>MediaPipe pose landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>. Should have no more than 33 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>. Should have no more than 33 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_COCO">
 <span class="sig-name descname"><span class="pre">LANDMARKS_COCO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_COCO" title="Permalink to this definition"></a></dt>
 <dd><p>COCO whole body landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>. Should have no more than 133 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>. Should have no more than 133 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_MPEG4">
 <span class="sig-name descname"><span class="pre">LANDMARKS_MPEG4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_MPEG4" title="Permalink to this definition"></a></dt>
 <dd><p>MPEG4 landmarks. Each landmark is given by name and two coordinates (x,y) in pixels.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float]</cite>.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float]</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_3D_IBUG68">
 <span class="sig-name descname"><span class="pre">LANDMARKS_3D_IBUG68</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_3D_IBUG68" title="Permalink to this definition"></a></dt>
 <dd><p>iBUG-68 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>. Should have no more than 68 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float, float]]</cite>. Should have no more than 68 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_3D_KINECT_V2">
 <span class="sig-name descname"><span class="pre">LANDMARKS_3D_KINECT_V2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_3D_KINECT_V2" title="Permalink to this definition"></a></dt>
 <dd><p>Kinect v2 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>. Should have no more than 32 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float, float]]</cite>. Should have no more than 32 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_3D_MEDIAPIPE">
 <span class="sig-name descname"><span class="pre">LANDMARKS_3D_MEDIAPIPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_3D_MEDIAPIPE" title="Permalink to this definition"></a></dt>
 <dd><p>MediaPipe pose landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>. hould have no more than 33 points.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float, float]]</cite>. hould have no more than 33 points.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -486,7 +486,7 @@ Each keypoint is defined in a similar manner to human labelers marking 2D face k
 <dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_3D_MPEG4">
 <span class="sig-name descname"><span class="pre">LANDMARKS_3D_MPEG4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_3D_MPEG4" title="Permalink to this definition"></a></dt>
 <dd><p>MPEG4 landmarks in 3D. Each landmark is given by name and three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>Dict[int, Tuple[float, float, float]]</cite>.</p>
+<p><strong>Type</strong>: <cite>Dict[str, Tuple[float, float, float]]</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -644,20 +644,6 @@ Default is “cam_default”.</p>
 <span class="sig-name descname"><span class="pre">FRAME_NUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">35</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.FRAME_NUM" title="Permalink to this definition"></a></dt>
 <dd><p>Frame number used for consecutive animation frames. Used for animation.</p>
 <p><strong>Type</strong>: <cite>int</cite>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_DENSE_MEDIAPIPE">
-<span class="sig-name descname"><span class="pre">LANDMARKS_DENSE_MEDIAPIPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">36</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_DENSE_MEDIAPIPE" title="Permalink to this definition"></a></dt>
-<dd><p>MediaPipe dense landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>ndarray[float32]</cite>. <strong>Shape</strong>: <cite>(468, 3)</cite>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="face_api_dataset.modality.Modality.LANDMARKS_DENSE_SAI">
-<span class="sig-name descname"><span class="pre">LANDMARKS_DENSE_SAI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">37</span></em><a class="headerlink" href="#face_api_dataset.modality.Modality.LANDMARKS_DENSE_SAI" title="Permalink to this definition"></a></dt>
-<dd><p>SAI dense landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.</p>
-<p><strong>Type</strong>: <cite>ndarray[float32]</cite>. <strong>Shape</strong>: <cite>(4840, 3)</cite>.</p>
 </dd></dl>
 
 </dd></dl>

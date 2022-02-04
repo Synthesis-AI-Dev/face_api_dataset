@@ -92,13 +92,13 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>landmarks</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>landmarks</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>height</strong> (<em>int</em>) – </p></li>
 <li><p><strong>width</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Dict[str, Tuple[float, float]]</p>
+<dd class="field-even"><p><em>Dict</em>[int, <em>Tuple</em>[float, float]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -149,23 +149,6 @@ each element is a <cite>List[Item]</cite> is a list of consecutive frames for gi
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></p>
 <p>Synthesis AI face dataset.</p>
 <p>This class provides access to all the modalities available in Synthesis AI generated datasets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>]</em>) – </p></li>
-<li><p><strong>modalities</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#face_api_dataset.modality.Modality" title="face_api_dataset.modality.Modality"><em>face_api_dataset.modality.Modality</em></a><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>segments</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>face_segments</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>face_bbox_pad</strong> (<em>int</em>) – </p></li>
-<li><p><strong>grouping</strong> (<a class="reference internal" href="#face_api_dataset.dataset.Grouping" title="face_api_dataset.dataset.Grouping"><em>face_api_dataset.dataset.Grouping</em></a>) – </p></li>
-<li><p><strong>out_of_frame_landmark_strategy</strong> (<a class="reference internal" href="#face_api_dataset.dataset.OutOfFrameLandmarkStrategy" title="face_api_dataset.dataset.OutOfFrameLandmarkStrategy"><em>face_api_dataset.dataset.OutOfFrameLandmarkStrategy</em></a>) – </p></li>
-<li><p><strong>transform</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.modality.Modality" title="face_api_dataset.modality.Modality"><em>face_api_dataset.modality.Modality</em></a><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>Dict</em><em>[</em><a class="reference internal" href="#face_api_dataset.modality.Modality" title="face_api_dataset.modality.Modality"><em>face_api_dataset.modality.Modality</em></a><em>, </em><em>Any</em><em>]</em><em>]</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="face_api_dataset.dataset.FaceApiDataset.SEGMENTS">
 <span class="sig-name descname"><span class="pre">SEGMENTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arm_lower_left':</span> <span class="pre">46,</span> <span class="pre">'arm_lower_right':</span> <span class="pre">47,</span> <span class="pre">'arm_upper_left':</span> <span class="pre">48,</span> <span class="pre">'arm_upper_right':</span> <span class="pre">49,</span> <span class="pre">'background':</span> <span class="pre">0,</span> <span class="pre">'beard':</span> <span class="pre">1,</span> <span class="pre">'body':</span> <span class="pre">2,</span> <span class="pre">'brow':</span> <span class="pre">3,</span> <span class="pre">'cheek_left':</span> <span class="pre">4,</span> <span class="pre">'cheek_right':</span> <span class="pre">5,</span> <span class="pre">'chin':</span> <span class="pre">6,</span> <span class="pre">'clothing':</span> <span class="pre">7,</span> <span class="pre">'default':</span> <span class="pre">0,</span> <span class="pre">'ear_left':</span> <span class="pre">8,</span> <span class="pre">'ear_right':</span> <span class="pre">9,</span> <span class="pre">'eye_left':</span> <span class="pre">10,</span> <span class="pre">'eye_right':</span> <span class="pre">11,</span> <span class="pre">'eyebrow_left':</span> <span class="pre">94,</span> <span class="pre">'eyebrow_right':</span> <span class="pre">95,</span> <span class="pre">'eyebrows':</span> <span class="pre">89,</span> <span class="pre">'eyelashes':</span> <span class="pre">12,</span> <span class="pre">'eyelashes_left':</span> <span class="pre">92,</span> <span class="pre">'eyelashes_right':</span> <span class="pre">93,</span> <span class="pre">'eyelid':</span> <span class="pre">13,</span> <span class="pre">'eyelid_left':</span> <span class="pre">92,</span> <span class="pre">'eyelid_right':</span> <span class="pre">93,</span> <span class="pre">'eyes':</span> <span class="pre">14,</span> <span class="pre">'finger1_mid_bottom_left':</span> <span class="pre">52,</span> <span class="pre">'finger1_mid_bottom_right':</span> <span class="pre">53,</span> <span class="pre">'finger1_mid_left':</span> <span class="pre">54,</span> <span class="pre">'finger1_mid_right':</span> <span class="pre">55,</span> <span class="pre">'finger1_mid_top_left':</span> <span class="pre">56,</span> <span class="pre">'finger1_mid_top_right':</span> <span class="pre">57,</span> <span class="pre">'finger2_mid_bottom_left':</span> <span class="pre">58,</span> <span class="pre">'finger2_mid_bottom_right':</span> <span class="pre">59,</span> <span class="pre">'finger2_mid_left':</span> <span class="pre">60,</span> <span class="pre">'finger2_mid_right':</span> <span class="pre">61,</span> <span class="pre">'finger2_mid_top_left':</span> <span class="pre">62,</span> <span class="pre">'finger2_mid_top_right':</span> <span class="pre">63,</span> <span class="pre">'finger3_mid_bottom_left':</span> <span class="pre">64,</span> <span class="pre">'finger3_mid_bottom_right':</span> <span class="pre">65,</span> <span class="pre">'finger3_mid_left':</span> <span class="pre">66,</span> <span class="pre">'finger3_mid_right':</span> <span class="pre">67,</span> <span class="pre">'finger3_mid_top_left':</span> <span class="pre">68,</span> <span class="pre">'finger3_mid_top_right':</span> <span class="pre">69,</span> <span class="pre">'finger4_mid_bottom_left':</span> <span class="pre">70,</span> <span class="pre">'finger4_mid_bottom_right':</span> <span class="pre">71,</span> <span class="pre">'finger4_mid_left':</span> <span class="pre">72,</span> <span class="pre">'finger4_mid_right':</span> <span class="pre">73,</span> <span class="pre">'finger4_mid_top_left':</span> <span class="pre">74,</span> <span class="pre">'finger4_mid_top_right':</span> <span class="pre">75,</span> <span class="pre">'finger5_mid_bottom_left':</span> <span class="pre">76,</span> <span class="pre">'finger5_mid_bottom_right':</span> <span class="pre">77,</span> <span class="pre">'finger5_mid_left':</span> <span class="pre">78,</span> <span class="pre">'finger5_mid_right':</span> <span class="pre">79,</span> <span class="pre">'finger5_mid_top_left':</span> <span class="pre">80,</span> <span class="pre">'finger5_mid_top_right':</span> <span class="pre">81,</span> <span class="pre">'foot_left':</span> <span class="pre">88,</span> <span class="pre">'foot_right':</span> <span class="pre">89,</span> <span class="pre">'forehead':</span> <span class="pre">15,</span> <span class="pre">'glasses':</span> <span class="pre">16,</span> <span class="pre">'glasses_frame':</span> <span class="pre">96,</span> <span class="pre">'glasses_lens_left':</span> <span class="pre">97,</span> <span class="pre">'glasses_lens_right':</span> <span class="pre">98,</span> <span class="pre">'hair':</span> <span class="pre">17,</span> <span class="pre">'hand_left':</span> <span class="pre">50,</span> <span class="pre">'hand_right':</span> <span class="pre">51,</span> <span class="pre">'head':</span> <span class="pre">18,</span> <span class="pre">'headphones':</span> <span class="pre">19,</span> <span class="pre">'headwear':</span> <span class="pre">20,</span> <span class="pre">'jaw':</span> <span class="pre">21,</span> <span class="pre">'jowl':</span> <span class="pre">22,</span> <span class="pre">'leg_lower_left':</span> <span class="pre">84,</span> <span class="pre">'leg_lower_right':</span> <span class="pre">85,</span> <span class="pre">'leg_upper_left':</span> <span class="pre">86,</span> <span class="pre">'leg_upper_right':</span> <span class="pre">87,</span> <span class="pre">'lip_lower':</span> <span class="pre">23,</span> <span class="pre">'lip_upper':</span> <span class="pre">24,</span> <span class="pre">'mask':</span> <span class="pre">25,</span> <span class="pre">'mouth':</span> <span class="pre">26,</span> <span class="pre">'mouthbag':</span> <span class="pre">27,</span> <span class="pre">'mustache':</span> <span class="pre">28,</span> <span class="pre">'nails_left':</span> <span class="pre">82,</span> <span class="pre">'nails_right':</span> <span class="pre">83,</span> <span class="pre">'neck':</span> <span class="pre">29,</span> <span class="pre">'nose':</span> <span class="pre">30,</span> <span class="pre">'nose_outer':</span> <span class="pre">31,</span> <span class="pre">'nostrils':</span> <span class="pre">32,</span> <span class="pre">'pupil_left':</span> <span class="pre">90,</span> <span class="pre">'pupil_right':</span> <span class="pre">91,</span> <span class="pre">'shoulders':</span> <span class="pre">33,</span> <span class="pre">'smile_line':</span> <span class="pre">34,</span> <span class="pre">'teeth':</span> <span class="pre">35,</span> <span class="pre">'temples':</span> <span class="pre">36,</span> <span class="pre">'tongue':</span> <span class="pre">37,</span> <span class="pre">'torso_lower_left':</span> <span class="pre">40,</span> <span class="pre">'torso_lower_right':</span> <span class="pre">41,</span> <span class="pre">'torso_mid_left':</span> <span class="pre">42,</span> <span class="pre">'torso_mid_right':</span> <span class="pre">43,</span> <span class="pre">'torso_upper_left':</span> <span class="pre">44,</span> <span class="pre">'torso_upper_right':</span> <span class="pre">45,</span> <span class="pre">'undereye':</span> <span class="pre">38,</span> <span class="pre">'undereye_left':</span> <span class="pre">99,</span> <span class="pre">'undereye_right':</span> <span class="pre">100}</span></em><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.SEGMENTS" title="Permalink to this definition"></a></dt>
@@ -320,6 +303,52 @@ For example, to work with <cite>background</cite> (0)/<cite>face</cite> (1)/<cit
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>pandas.core.frame.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="face_api_dataset.dataset.FaceApiDataset.get_euler_angles">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_euler_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.get_euler_angles" title="Permalink to this definition"></a></dt>
+<dd><p>Euler angles by matrix 4x4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>np.ndarray</em>) – matrix 4x4.</p></li>
+<li><p><strong>order</strong> (<em>str</em>) – axes order (‘xyz’,’yzx’,’zxy’).</p></li>
+<li><p><strong>degrees</strong> (<em>bool</em>) – whether use degrees or radians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="face_api_dataset.dataset.FaceApiDataset.get_quaternion">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_quaternion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.get_quaternion" title="Permalink to this definition"></a></dt>
+<dd><p>Quaternion by matrix 4x4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.ndarray</em>) – matrix 4x4</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="face_api_dataset.dataset.FaceApiDataset.get_shift">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#face_api_dataset.dataset.FaceApiDataset.get_shift" title="Permalink to this definition"></a></dt>
+<dd><p>Return shift vector by matrix 4x4 which contains both rotation and shift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.ndarray</em>) – matrix 4x4</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
 </dd>
 </dl>
 </dd></dl>

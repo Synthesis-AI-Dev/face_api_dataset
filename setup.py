@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="face_api_dataset",
-    version="1.0.5",
+    version="1.0.6",
     python_requires=">=3.6.0",
     license="MIT",
     author="Synthesis AI",

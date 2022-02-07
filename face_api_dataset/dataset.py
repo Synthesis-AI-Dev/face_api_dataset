@@ -255,6 +255,10 @@ class FaceApiDataset(Base):
         "glasses_lens_right": 98,
         "undereye_left": 99,
         "undereye_right": 100,
+        "sclera_left": 101,
+        "sclera_right": 102,
+        "cornea_left": 103,
+        "cornea_right": 104
     }
     """
     Default segmentation mapping.
@@ -412,7 +416,7 @@ class FaceApiDataset(Base):
                 with open(file_path,"r") as f:
                     info = json.load(f)
                 dataset_version = info['version']
-                if parse_version(dataset_version) < parse_version("1.4"):
+                if parse_version(dataset_version) != parse_version("1.5"):
                     raise ValueError(f"The version of this dataset is {dataset_version} which is not compatible with current face_api_dataset version. You could use an earlier version of face_api_dataset(<=1.0.4).")
                 version_checked = True    
             frame_num = int(frame.split(_Extension.FRAME_NO_PREFIX)[-1])

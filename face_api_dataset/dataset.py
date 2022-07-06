@@ -685,7 +685,8 @@ class FaceApiDataset(Base):
             return info["facial_attributes"]["expression"]
 
         if modality == Modality.GAZE:
-            return info["facial_attributes"]["gaze"]
+            return {"right": info["gaze_values"]["eye_right"]["gaze_vector"],
+                    "left":  info["gaze_values"]["eye_left"]["gaze_vector"]}
 
         if modality == Modality.FACE_BBOX:
             file_path = item_meta[item_meta.EXTENSION == _Extension.SEGMENTS].file_path.iloc[0]

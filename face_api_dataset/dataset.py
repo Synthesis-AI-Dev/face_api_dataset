@@ -72,8 +72,10 @@ def _modality_files(modality: Modality) -> List[_Extension]:
         Modality.CAM_INTRINSICS: [_Extension.INFO],
         Modality.CAMERA_NAME: [_Extension.INFO],
         Modality.FRAME_NUM: [_Extension.INFO],
-        Modality.LANDMARKS_DENSE_MEDIAPIPE: [_Extension.MEDIAPIPE_DENSE_OBJ],
-        Modality.LANDMARKS_DENSE_SAI: [_Extension.SAI_DENSE_OBJ]
+        Modality.LANDMARKS_3D_MEDIAPIPE_FACE: [_Extension.MEDIAPIPE_DENSE_OBJ, _Extension.INFO],
+        Modality.LANDMARKS_3D_SAI: [_Extension.SAI_DENSE_OBJ, _Extension.INFO],
+        Modality.LANDMARKS_MEDIAPIPE_FACE: [_Extension.MEDIAPIPE_DENSE_OBJ, _Extension.INFO],
+        Modality.LANDMARKS_SAI: [_Extension.SAI_DENSE_OBJ, _Extension.INFO]
     }[modality]
 
 
@@ -744,15 +746,25 @@ class FaceApiDataset(Base):
         if modality == Modality.FRAME_NUM:
             return item_meta.FRAME_NUM.iloc[0]
         
-        if modality == Modality.LANDMARKS_DENSE_MEDIAPIPE:
+        if modality == Modality.LANDMARKS_3D_MEDIAPIPE_FACE:
             m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
             file_path = item_meta[item_meta.EXTENSION == _Extension.MEDIAPIPE_DENSE_OBJ].file_path.iloc[0]
             return self._read_obj(file_path, m)
         
-        if modality == Modality.LANDMARKS_DENSE_SAI:
+        if modality == Modality.LANDMARKS_3D_SAI:
             m = np.array(info["camera"]["transform_world2cam"]["mat_4x4"], dtype=np.float64)
             file_path = item_meta[item_meta.EXTENSION == _Extension.SAI_DENSE_OBJ].file_path.iloc[0]
             return self._read_obj(file_path, m)
+
+        if modality == Modality.LANDMARKS_SAI:
+            sai_3d = self._open_modality(Modality.LANDMARKS_3D_SAI, item_meta, element_idx, info)
+            intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
+            return np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))
+
+        if modality == Modality.LANDMARKS_MEDIAPIPE_FACE:
+            sai_3d = self._open_modality(Modality.LANDMARKS_3D_MEDIAPIPE_FACE, item_meta, element_idx, info)
+            intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
+            return np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))
 
         raise ValueError("Unknown modality")
         

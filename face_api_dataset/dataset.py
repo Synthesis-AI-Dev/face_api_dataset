@@ -10,8 +10,6 @@ from typing import Optional, Any, Union, Dict, Callable, overload, TYPE_CHECKING
 import numpy as np
 import pandas as pd
 from pkg_resources import parse_version
-from pdb import set_trace
-
 
 from face_api_dataset.modality import Modality
 
@@ -760,12 +758,12 @@ class FaceApiDataset(Base):
         if modality == Modality.LANDMARKS_SAI:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_SAI, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))
+            return dict(enumerate(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2]))
 
         if modality == Modality.LANDMARKS_MEDIAPIPE_FACE:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_MEDIAPIPE_FACE, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))
+            return dict(enumerate(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2]))
 
         raise ValueError("Unknown modality")
         
@@ -926,5 +924,4 @@ class FaceApiDataset(Base):
         :param np.ndarray matrix:  matrix 4x4         
         
         """
-        from scipy.spatial.transform.rotation import Rotation
         return matrix[:3,3]

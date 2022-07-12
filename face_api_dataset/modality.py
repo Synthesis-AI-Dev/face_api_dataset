@@ -266,11 +266,11 @@ class Modality(Enum):
     """
     MediaPipe dense face landmarks. Each landmark is given by two coordinates (x,y) in pixels.
     
-    **Type**: `ndarray[float32]`. **Shape**: `(468, 3)`.
+    **Type**: `ndarray[float32]`. **Shape**: `(468, 2)`.
     """
     LANDMARKS_SAI = auto()
     """
     SAI dense landmarks. Each landmark is given by two coordinates (x,y) in pixels..
     
-    **Type**: `ndarray[float32]`. **Shape**: `(4840, 3)`.
+    **Type**: `ndarray[float32]`. **Shape**: `(4840, 2)`.
     """

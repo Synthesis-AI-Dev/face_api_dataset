@@ -252,7 +252,7 @@ class Modality(Enum):
     """
     LANDMARKS_3D_MEDIAPIPE_FACE = auto()
     """
-    MediaPipe dense landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.
+    MediaPipe dense face landmarks in 3D. Each landmark is given by three coordinates (x,y,z) in camera space.
 
     **Type**: `ndarray[float32]`. **Shape**: `(468, 3)`.
     """
@@ -270,7 +270,7 @@ class Modality(Enum):
     """
     LANDMARKS_SAI = auto()
     """
-    SAI dense landmarks. Each landmark is given by two coordinates (x,y) in pixels..
+    SAI dense face landmarks. Each landmark is given by two coordinates (x,y) in pixels.
     
     **Type**: `ndarray[float32]`. **Shape**: `(4840, 2)`.
     """

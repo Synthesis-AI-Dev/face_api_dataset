@@ -557,6 +557,10 @@ class FaceApiDataset(Base):
             ret[modality] = self._open_modality(modality, item_meta, element_idx, info)
         return ret
 
+    @staticmethod
+    def _hom_to_euclidian(x):
+        return x[:, :2] / x[:, 2]
+
     def _open_modality(
             self, modality: Modality, item_meta: pd.DataFrame, element_idx: tuple, info: Optional[dict]
     ) -> Any:
@@ -758,12 +762,12 @@ class FaceApiDataset(Base):
         if modality == Modality.LANDMARKS_SAI:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_SAI, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return dict(enumerate(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2]))
+            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2])))
 
         if modality == Modality.LANDMARKS_MEDIAPIPE_FACE:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_MEDIAPIPE_FACE, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return dict(enumerate(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2]))
+            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2])))
 
         raise ValueError("Unknown modality")
         

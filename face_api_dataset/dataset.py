@@ -559,6 +559,7 @@ class FaceApiDataset(Base):
 
     @staticmethod
     def _hom_to_euclidian(x):
+        print(x)
         return x[:, :2] / x[:, 2]
 
     def _open_modality(
@@ -762,12 +763,12 @@ class FaceApiDataset(Base):
         if modality == Modality.LANDMARKS_SAI:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_SAI, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2])))
+            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1)))))
 
         if modality == Modality.LANDMARKS_MEDIAPIPE_FACE:
             sai_3d = self._open_modality(Modality.LANDMARKS_3D_MEDIAPIPE_FACE, item_meta, element_idx, info)
             intrinsics = self._open_modality(Modality.CAM_INTRINSICS, item_meta, element_idx, info)
-            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1))[:, :2])))
+            return dict(enumerate(self._hom_to_euclidian(np.tensordot(sai_3d * [1, -1, -1], intrinsics, axes=(-1, 1)))))
 
         raise ValueError("Unknown modality")
         

@@ -559,8 +559,7 @@ class FaceApiDataset(Base):
 
     @staticmethod
     def _hom_to_euclidian(x):
-        print(x)
-        return x[:, :2] / x[:, 2]
+        return x[:, :2] / np.expand_dims(x[:, 2], -1)
 
     def _open_modality(
             self, modality: Modality, item_meta: pd.DataFrame, element_idx: tuple, info: Optional[dict]
